@@ -7,9 +7,8 @@ body {
   align-items: center;      
   height: 100vh;
   background-image: url("../assets/background/pokemon-bg.jpg");
-  background-size: contain;    
-  background-position: unset;  
-  background-repeat: repeat-x; 
+  background-size: contain;
+  background-repeat: repeat-x;
 }
 
 /* Estilos para o canvas do jogo */
@@ -20,36 +19,32 @@ body {
   image-rendering: pixelated;
 }
 
-/* Estilos para a tela de introdução */
-#intro-screen {
+#theme-button {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);  /* Fundo semi-transparente */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 48px;
-  text-align: center;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+  top: 10px;
+  left: 10px;
   z-index: 10;
+  padding: 6px 12px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 10px; /* menor, estilo retro */
+  background-color: #ff0000;
+  color: #fff;
+  border: 2px solid #000;
+  border-radius: 4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  image-rendering: pixelated;
 }
 
-#intro-text {
-  font-size: 48px;
-  font-weight: bold;
-  animation: flicker 1.5s infinite;
+#theme-button:hover {
+  background-color: #fff;
+  color: #ff0000;
+  border-color: #ff0000;
 }
 
-@keyframes flicker {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+#theme-button:active {
+  background-color: #000;
+  color: #fff;
+  border-color: #fff;
 }

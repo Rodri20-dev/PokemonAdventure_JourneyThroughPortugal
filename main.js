@@ -1,56 +1,18 @@
-import { CollisionDetector } from "./Core/ColisionDetector.js";
+//main.js
+import { Player } from './entities/Player.js';
+import CollisionDetector from "./core/CollisionDetector.js";
+import { initBackgroundSwitcher } from './Core/Background.js';
+import Intro from './Core/Intro.js'
 
+initBackgroundSwitcher();
+let introScreen;
 var canvas;
 var ctx;
 var mapData;
 var mapImg;
-var playerImg;
 let activeKey = null;
 let collisionDetector;
-
-// Objeto do jogador
-const player = {
-    sprite: {
-        sourceX: 0,
-        sourceY: 0,
-        width: 48,
-        height: 64
-    },
-    x: 160,
-    y: 128,
-    speed: 1,
-    width: 24,
-    height: 32,
-    numberOfFrames: 4,
-    currentFrame: 0,
-    states: {
-        DOWN: 0,
-        LEFT: 1,
-        RIGHT: 2,
-        UP: 3
-    },
-    state: 0,
-    animationCounter: 0,
-    animationSpeed: 8,
-    updateAnimation: function() {
-        this.animationCounter++;
-        if (this.animationCounter >= this.animationSpeed) {
-            this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
-            this.sprite.sourceX = this.currentFrame * player.sprite.width;
-            this.sprite.sourceY = this.state * this.sprite.height;
-            this.animationCounter = 0; // reset contador
-        }
-        render();
-    }
-};
-
-// Controles
-const keys = {
-    ArrowUp: false,
-    ArrowDown: false,
-    ArrowLeft: false,
-    ArrowRight: false
-};
+var player = undefined
 
 window.addEventListener("load", initGame, false);
 
@@ -60,21 +22,24 @@ function initGame() {
     canvas = document.getElementById("game-canvas");
     ctx = canvas.getContext("2d");
 
-    // Dados do mapa já carregados globalmente por map-data.js
-    mapData = TileMaps["map-data"];
-    collisionDetector = new CollisionDetector(mapData); // Inicializa o CollisionDetector agora
+    introScreen = new Intro(canvas, ctx); // Tela mostrada no inicio do jogo
+    
+    mapData = TileMaps["map-data"]; // Dados do mapa já carregados globalmente por map-data.js
+    collisionDetector = new CollisionDetector(mapData); // Inicializa o CollisionDetector
 
-    //imagens
+    player = new Player()
+    
     mapImg = new Image();
-    playerImg = new Image();
+    player.sprite.img = new Image();
 
     mapImg.addEventListener("load", checkAssetsLoaded);
-    playerImg.addEventListener("load", checkAssetsLoaded);
+    player.sprite.img.addEventListener("load", checkAssetsLoaded);
 
     mapImg.src = 'assets/maps/pallet-town.png';
-    playerImg.src = 'assets/characters/player.png';
+    player.sprite.img.src = player.sprite.imgURL;
 
     window.addEventListener("keydown", (e) => {
+        introScreen.handleKeyDown(e);
         if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
             activeKey = e.code;
         }
@@ -83,6 +48,7 @@ function initGame() {
     window.addEventListener("keyup", (e) => {
         if (e.code === activeKey) {
             activeKey = null;
+            console.log(player.currentFrame) 
         }
     });
 }
@@ -100,9 +66,10 @@ function loadHandler() {
 }
 
 function gameLoop() {
-    update();
-    render();
     requestAnimationFrame(gameLoop);
+    introScreen.isActive ? 
+    (introScreen.update(), introScreen.render()) : (update(), render());
+    
 }
 
 function update() {
@@ -110,31 +77,36 @@ function update() {
     let newY = player.y;
 
     if (activeKey === "ArrowUp") {
-        newY -= player.speed;
         player.state = player.states.UP;
+        newY -= player.speed;
     }
     if (activeKey === "ArrowDown") {
-        newY += player.speed;
         player.state = player.states.DOWN;
+        newY += player.speed;
     }
     if (activeKey === "ArrowLeft") {
-        newX -= player.speed;
         player.state = player.states.LEFT;
+        newX -= player.speed;
     }
     if (activeKey === "ArrowRight") {
-        newX += player.speed;
         player.state = player.states.RIGHT;
-    }
-
-    // Verifica a colisão usando a instância collisionDetector
-    if (collisionDetector) {
-        if (!collisionDetector.isColliding(newX, player.y)) player.x = newX;
-        if (!collisionDetector.isColliding(player.x, newY)) player.y = newY;
+        newX += player.speed;
     }
 
     if (activeKey) {
         player.updateAnimation();
+        render();
     }
+    
+    if (!collisionDetector.isColliding(newX, player.y, player.width, player.height)) {
+    player.x = newX;
+    }
+    if (!collisionDetector.isColliding(player.x, newY, player.width, player.height)) {
+        player.y = newY;
+    }
+
+
+
 }
 
 function render() {
@@ -153,8 +125,8 @@ function render() {
     const dx = (canvas.width - player.width) / 2;
     const dy = (canvas.height - player.height) / 2;
     ctx.drawImage(
-        playerImg,
-        player.sprite.sourceX, player.sprite.sourceY, player.sprite.width, player.sprite.height,
+        player.sprite.img,
+        player.sprite.sourceX, player.sprite.sourceY, player.sprite.sourceWidth, player.sprite.sourceHeight,
         dx, dy, player.width, player.height
     );
 }
