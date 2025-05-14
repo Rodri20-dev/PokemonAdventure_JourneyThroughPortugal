@@ -2,9 +2,6 @@ export default class InputHandler {
     constructor(player) {
         this.player = player;
         this.activeKey = null;
-
-        window.addEventListener("keydown", this.handleKeyDown.bind(this));
-        window.addEventListener("keyup", this.handleKeyUp.bind(this));
     }
 
     handleKeyDown(e) {

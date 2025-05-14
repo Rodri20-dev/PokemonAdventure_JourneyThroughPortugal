@@ -1,31 +1,29 @@
-import CollisionDetector from "./ColisionDetector.js";
+import CollisionDetector from "./CollisionDetector.js";
 import InputHandler from "./InputHandler.js";
-import Player from "../Entities/Player.js"; // Importa a classe Player
+import { Player } from "../Entities/Player.js"; // Importa Player com chaves
 
 export default class GameEngine {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
+    constructor(canvas) {
+        this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
         this.mapData = null;
         this.mapImg = new Image();
-        this.playerImg = new Image();
-        this.player = new Player(160, 128, 1); // Cria uma instância de Player
+        this.player = new Player(); // Cria uma instância de Player
         this.collisionDetector = null;
-        this.inputHandler = null;
+        this.inputHandler = new InputHandler(this.player); // Passa o player para o InputHandler
         this.assetsLoaded = 0;
     }
 
     load() {
-        // Dados do mapa já carregados globalmente por map-data.js
         this.mapData = TileMaps["map-data"];
         this.collisionDetector = new CollisionDetector(this.mapData);
-        this.inputHandler = new InputHandler(this.player);
 
         this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
-        this.playerImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
+        this.player.sprite.img = new Image();
+        this.player.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
 
         this.mapImg.src = 'assets/maps/pallet-town.png';
-        this.playerImg.src = 'assets/characters/player.png';
+        this.player.sprite.img.src = this.player.sprite.imgURL;
     }
 
     checkAssetsLoaded() {
@@ -35,36 +33,44 @@ export default class GameEngine {
         }
     }
 
+    handleKeyDown(e) {
+        this.inputHandler.handleKeyDown(e);
+    }
+
+    handleKeyUp(e) {
+        this.inputHandler.handleKeyUp(e);
+    }
+
     update() {
+        const activeKey = this.inputHandler.getActiveKey();
         let newX = this.player.x;
         let newY = this.player.y;
-        const activeKey = this.inputHandler.getActiveKey();
 
         if (activeKey === "ArrowUp") {
             newY -= this.player.speed;
             this.player.state = this.player.states.UP;
-        }
-        if (activeKey === "ArrowDown") {
+        } else if (activeKey === "ArrowDown") {
             newY += this.player.speed;
             this.player.state = this.player.states.DOWN;
-        }
-        if (activeKey === "ArrowLeft") {
+        } else if (activeKey === "ArrowLeft") {
             newX -= this.player.speed;
             this.player.state = this.player.states.LEFT;
-        }
-        if (activeKey === "ArrowRight") {
+        } else if (activeKey === "ArrowRight") {
             newX += this.player.speed;
             this.player.state = this.player.states.RIGHT;
         }
 
-        // Verifica a colisão usando a instância collisionDetector
-        if (this.collisionDetector) {
-            if (!this.collisionDetector.isColliding(newX, this.player.y)) this.player.x = newX;
-            if (!this.collisionDetector.isColliding(this.player.x, newY)) this.player.y = newY;
+        if (activeKey) {
+            this.player.updateAnimation();
         }
 
-        if (activeKey) {
-            this.player.updateAnimation(this.render.bind(this)); // Passa a função render para o Player
+        if (this.collisionDetector) {
+            if (!this.collisionDetector.isColliding(newX, this.player.y, this.player.width, this.player.height)) {
+                this.player.x = newX;
+            }
+            if (!this.collisionDetector.isColliding(this.player.x, newY, this.player.width, this.player.height)) {
+                this.player.y = newY;
+            }
         }
     }
 
@@ -84,14 +90,15 @@ export default class GameEngine {
         const dx = (this.canvas.width - this.player.width) / 2;
         const dy = (this.canvas.height - this.player.height) / 2;
         this.ctx.drawImage(
-            this.playerImg,
-            this.player.sprite.sourceX, this.player.sprite.sourceY, this.player.sprite.width, this.player.sprite.height,
+            this.player.sprite.img,
+            this.player.sprite.sourceX, this.player.sprite.sourceY, this.player.sprite.sourceWidth, this.player.sprite.sourceHeight,
             dx, dy, this.player.width, this.player.height
         );
     }
 
     gameLoop() {
         this.update();
+        this.render();
         requestAnimationFrame(this.gameLoop.bind(this));
     }
 
