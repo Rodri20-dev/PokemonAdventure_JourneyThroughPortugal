@@ -1,5 +1,5 @@
 //main.js
-import { Player } from './entities/Player.js';
+import { Player } from './Entities/Player.js';
 import CollisionDetector from "./core/CollisionDetector.js";
 import { initBackgroundSwitcher } from './Core/Background.js';
 import Intro from './Core/Intro.js'
