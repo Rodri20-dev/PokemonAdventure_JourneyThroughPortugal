@@ -7,7 +7,9 @@ class CollisionDetector {
     }
 
     initCollisionTiles() {
+        console.log(this.mapData);
         const tileset = this.mapData.tilesets[0];
+        
         tileset.tiles.forEach(tile => {
             if (tile.properties) {
                 const collideProp = tile.properties.find(p => p.name === 'collide' && p.value);

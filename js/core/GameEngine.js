@@ -1,7 +1,8 @@
-//GameEngine.js
+// js/core/GameEngine.js
 import CollisionDetector from "./CollisionDetector.js";
 import InputHandler from "./InputHandler.js";
 import Player from "../entities/Player.js";
+import SceneManager from "./SceneManager.js"; // Importa SceneManager
 
 class GameEngine {
     constructor(canvas) {
@@ -10,41 +11,53 @@ class GameEngine {
         this.mapData = null;
         this.mapImg = new Image();
         this.player = new Player();
+        this.player.sprite.img = new Image();
         this.collisionDetector = null;
         this.inputHandler = new InputHandler(this.player);
         this.assetsLoaded = 0;
+        this.sceneManager = new SceneManager(this); // Cria instância do SceneManager
 
-        // bind o gameLoop uma vez para manter o this correto
         this.gameLoop = this.gameLoop.bind(this);
     }
 
-    async start() {
+    start() {
+        this.loadMap('pallet-town'); // Carrega o mapa inicial
+        window.addEventListener("keydown", this.inputHandler.handleKeyDown.bind(this.inputHandler));
+        window.addEventListener("keyup", this.inputHandler.handleKeyUp.bind(this.inputHandler));
 
-        const res = await fetch("../data/map-data.json");
+        // Define as áreas de transição (exemplo)
+        this.sceneManager.addTransitionArea(400, 50, 32, 35, 'map2-data');
+        this.sceneManager.addTransitionArea(400, 470, 32, 32, 'route22');
+
+        this.gameLoop();
+    }
+
+    async loadMap(mapName) {
+        console.log("loadMap function called with:", mapName);
+        this.assetsLoaded = 0; // Reset assets loaded
+        const res = await fetch(`../../data/${mapName}.json`); // Assumindo ficheiros .json para os mapas
         const data = await res.json();
         this.mapData = data;
-
-        this.keydownHandler = this.inputHandler.handleKeyDown.bind(this.inputHandler);
-        this.keyupHandler = this.inputHandler.handleKeyUp.bind(this.inputHandler);
-
+        // console.log(this.mapData);
         this.collisionDetector = new CollisionDetector(this.mapData);
 
-        this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
+        this.mapImg.removeEventListener("load", this.checkAssetsLoaded); // Remove listeners antigos
+        this.player.sprite.img.removeEventListener("load", this.checkAssetsLoaded);
+
+        this.mapImg = new Image();
         this.player.sprite.img = new Image();
+
+        this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
         this.player.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
 
-        this.mapImg.src = 'assets/images/maps/pallet-town.png';
+        this.mapImg.src = `assets/images/maps/${mapName}.png`;
         this.player.sprite.img.src = this.player.sprite.imgURL;
-
-        window.addEventListener("keydown", this.keydownHandler);
-        window.addEventListener("keyup", this.keyupHandler);
-
     }
 
     checkAssetsLoaded() {
         this.assetsLoaded++;
         if (this.assetsLoaded === 2) {
-            this.gameLoop()
+            // Assets do mapa carregados
         }
     }
 
@@ -59,31 +72,20 @@ class GameEngine {
         let newX = this.player.x;
         let newY = this.player.y;
 
-        if (activeKey === "ArrowUp") {
-            newY -= this.player.speed;
-            this.player.state = this.player.states.UP;
-        } else if (activeKey === "ArrowDown") {
-            newY += this.player.speed;
-            this.player.state = this.player.states.DOWN;
-        } else if (activeKey === "ArrowLeft") {
-            newX -= this.player.speed;
-            this.player.state = this.player.states.LEFT;
-        } else if (activeKey === "ArrowRight") {
-            newX += this.player.speed;
-            this.player.state = this.player.states.RIGHT;
-        }
+        if (activeKey === "ArrowUp") newY -= this.player.speed;
+        else if (activeKey === "ArrowDown") newY += this.player.speed;
+        else if (activeKey === "ArrowLeft") newX -= this.player.speed;
+        else if (activeKey === "ArrowRight") newX += this.player.speed;
 
         if (activeKey) this.player.updateAnimation();
 
-
         if (this.collisionDetector) {
-            if (!this.collisionDetector.isColliding(newX, this.player.y, this.player.width, this.player.height)) {
-                this.player.x = newX;
-            }
-            if (!this.collisionDetector.isColliding(this.player.x, newY, this.player.width, this.player.height)) {
-                this.player.y = newY;
-            }
+            if (!this.collisionDetector.isColliding(newX, this.player.y, this.player.width, this.player.height)) this.player.x = newX;
+            if (!this.collisionDetector.isColliding(this.player.x, newY, this.player.width, this.player.height)) this.player.y = newY;
         }
+
+        this.sceneManager.checkTransitionAreas(this.player.x, this.player.y);
+        this.sceneManager.updateTransition();
     }
 
     render() {
@@ -92,22 +94,33 @@ class GameEngine {
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
 
-        this.ctx.drawImage(
-            this.mapImg,
-            -camX, -camY,
-            this.mapData.width * this.mapData.tilewidth,
-            this.mapData.height * this.mapData.tileheight
-        );
-
-        const dx = (this.canvas.width - this.player.width) / 2;
-        const dy = (this.canvas.height - this.player.height) / 2;
+        if (this.mapImg && this.mapData) {
+            this.ctx.drawImage(
+                this.mapImg,
+                -camX, -camY,
+                this.mapData.width * this.mapData.tilewidth,
+                this.mapData.height * this.mapData.tileheight
+            );
+        }
 
         this.ctx.drawImage(
             this.player.sprite.img,
             this.player.sprite.sourceX, this.player.sprite.sourceY,
             this.player.sprite.sourceWidth, this.player.sprite.sourceHeight,
-            dx, dy, this.player.width, this.player.height
+            (this.canvas.width - this.player.width) / 2,
+            (this.canvas.height - this.player.height) / 2,
+            this.player.width, this.player.height
         );
+
+        // Desenha a primeira área de transição AJUSTADA PARA A CÂMARA
+        this.ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+        this.ctx.fillRect(400 - camX, 50 - camY, 32, 35);
+
+        // Desenha a segunda área de transição AJUSTADA PARA A CÂMARA
+        this.ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+        this.ctx.fillRect(400 - camX, 470 - camY, 32, 32);
+
+        this.sceneManager.renderTransition();
     }
 }
 

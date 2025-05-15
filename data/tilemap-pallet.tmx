@@ -4,7 +4,7 @@
   <export target="../../TP2 - Pokemon/js/map-data.js" format="js"/>
  </editorsettings>
  <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" tilecount="80" columns="8">
-  <image source="../../../../../Downloads/deduplicate_and_generate2_tmx/tileset.png" width="128" height="160"/>
+  <image source="./tileset.png" width="128" height="160"/>
   <tile id="0">
    <properties>
     <property name="collide" type="bool" value="true"/>
