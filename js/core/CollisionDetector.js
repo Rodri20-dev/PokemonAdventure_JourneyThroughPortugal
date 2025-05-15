@@ -1,5 +1,5 @@
 //CollisionDetector.js
-export default class CollisionDetector {
+class CollisionDetector {
     constructor(data) {
         this.mapData = data;
         this.collisionTiles = {};
@@ -48,3 +48,5 @@ export default class CollisionDetector {
     }
 
 }
+
+export default CollisionDetector

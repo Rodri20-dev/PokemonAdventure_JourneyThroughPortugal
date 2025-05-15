@@ -1,7 +1,8 @@
-export default class InputHandler {
+//InputHandler.js
+class InputHandler {
     constructor(player) {
-        this.player = player;
         this.activeKey = null;
+        this.player = player
     }
 
     handleKeyDown(e) {
@@ -13,6 +14,7 @@ export default class InputHandler {
     handleKeyUp(e) {
         if (e.code === this.activeKey) {
             this.activeKey = null;
+            this.player.resetAnimation()
         }
     }
 
@@ -20,3 +22,5 @@ export default class InputHandler {
         return this.activeKey;
     }
 }
+
+export default InputHandler

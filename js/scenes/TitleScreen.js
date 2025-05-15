@@ -1,14 +1,13 @@
-// Intro.js
-export default class Intro {
-    constructor(canvas, ctx, onIntroComplete) { // Adiciona um callback onIntroComplete
+//Intro.js
+class Intro {
+    constructor(canvas) {
         this.canvas = canvas;
-        this.ctx = ctx;
+        this.ctx = this.canvas.getContext("2d");
         this.isActive = true;
         this.img = new Image();
         this.blinkTimer = 0;
         this.showPressEnter = true;
         this.loaded = false;
-        this.onIntroComplete = onIntroComplete; // Guarda o callback
 
         // Animação
         this.COLUMNS = 3;
@@ -23,7 +22,7 @@ export default class Intro {
         this.img.onload = () => {
             this.loaded = true;
         };
-        this.img.src = '/assets/intro/intro.png';
+        this.img.src = '/assets/images/intro/intro.png';
     }
 
     update() {
@@ -76,11 +75,10 @@ export default class Intro {
     }
 
     handleKeyDown(e) {
-        if (e.code === "Enter" && this.isActive) {
+        if (e.code === "Enter") {
             this.isActive = false;
-            if (this.onIntroComplete) {
-                this.onIntroComplete(); // Chama o callback para iniciar o jogo
-            }
         }
     }
 }
+
+export default Intro

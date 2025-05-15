@@ -1,22 +1,24 @@
 //Player.js
-import { Entity } from "./Entity.js";
+import Entity from "./Entity.js";
 
-export class Player extends Entity { // Exporta como uma classe ES6
-    constructor(x = 160, y = 128, speed = 1) { // Adiciona valores por defeito
-        super();
+var Player = Entity.extend(function () {
+
+    this.constructor = function () {
+        this.super();
+
         this.sprite = {
-            img: null,
-            imgURL: "assets/characters/player.png",
+            img: "",
+            imgURL: "assets/images/characters/player.png",
             sourceX: 0,
             sourceY: 0,
             sourceWidth: 32,
             sourceHeight: 48
         };
-        this.x = x;
-        this.y = y;
+        this.x = 160;
+        this.y = 128;
         this.width = 16;
         this.height = 24;
-        this.speed = speed;
+        this.speed = 1;
         this.numberOfFrames = 4;
         this.currentFrame = 0;
         this.states = {
@@ -28,9 +30,9 @@ export class Player extends Entity { // Exporta como uma classe ES6
         this.state = 0;
         this.animationCounter = 0;
         this.animationSpeed = 8;
-    }
+    };
 
-    updateAnimation() {
+    this.updateAnimation = function () {
         this.animationCounter++;
         if (this.animationCounter >= this.animationSpeed) {
             this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;
@@ -38,5 +40,14 @@ export class Player extends Entity { // Exporta como uma classe ES6
         }
         this.sprite.sourceX = this.currentFrame * this.sprite.sourceWidth;
         this.sprite.sourceY = this.state * this.sprite.sourceHeight;
-    }
-}
+
+    };
+    this.resetAnimation = function () {
+        this.currentFrame = 0;
+        this.animationCounter = 0;
+        this.sprite.sourceX = 0;
+    };
+
+});
+
+export default Player
