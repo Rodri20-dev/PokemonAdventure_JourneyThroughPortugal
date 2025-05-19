@@ -34,6 +34,7 @@ class GameEngine {
     }
 
     async loadMap(mapName) {
+        this.sceneManager.clearTransitionAreas();
         console.log("loadMap function called with:", mapName);
         // this.assetsLoaded = 0; // Reset assets loaded
         const res = await fetch(`../../data/${mapName}-data.json`); 
@@ -45,9 +46,6 @@ class GameEngine {
         // Remove listeners antigos
         this.mapImg.removeEventListener("load", this.checkAssetsLoaded.bind(this)); 
         this.player.sprite.img.removeEventListener("load", this.checkAssetsLoaded.bind(this));
-
-        //this.mapImg = new Image();
-        //this.player.sprite.img = new Image();
 
          if (this.assetsLoaded <= 2) {
             this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
@@ -62,24 +60,23 @@ class GameEngine {
     }
 
     defineMapTransitionAreas(mapName) {
-        // Mapa 1 - Transições e Coordenadas do PLayer
+        // Mapa 1
         if (mapName === 'map') {
 
-            // Define as áreas de transição específicas para o mapa 'Pallet-Town' aqui
             if (playerTransitionLocation === 'map') {
                 console.log("1"); 
-                this.player.x = 8*16;
+                this.player.x = 9*16;
                 this.player.y = 17*16;
             }
             
             playerTransitionLocation = 'map2'; 
 
             //Transição do MAPA 1 para o MAPA 2
-            this.sceneManager.addTransitionArea(3 * 16, 15 * 16, 32, 32, 'map2');
+            this.sceneManager.addTransitionArea(5, 17, 2, 2, 'map2');
                               
-        // Mapa 2 - Transições e Coordenadas do PLayer
+        // Mapa 2 
         } else if (mapName === 'map2') {
-            if (playerTransitionLocation = 'map2') {
+            if (playerTransitionLocation === 'map2') {
                 console.log("2");
                 
                 console.log(playerTransitionLocation);
@@ -90,7 +87,7 @@ class GameEngine {
             playerTransitionLocation = 'map'; 
 
             //Transição do MAPA 2 para o MAPA 1
-            this.sceneManager.addTransitionArea(47 * 16, 100, 16, 16, 'map');
+            this.sceneManager.addTransitionArea(47, 6, 1, 4, 'map');
             
         }
     }
@@ -140,7 +137,7 @@ class GameEngine {
         }
 
         this.sceneManager.checkTransitionAreas(this.player.x, this.player.y);
-        this.sceneManager.updateTransition();
+        this.sceneManager.updateTransition()
     }
 
     render() {
@@ -179,7 +176,7 @@ class GameEngine {
 
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
 
-        this.ctx.fillRect(48*16 - camX, 100 - camY, 16, 16);
+        this.ctx.fillRect((47*16) - camX, (6*16) - camY, 16, 64);
 
         this.sceneManager.renderTransition();
     }

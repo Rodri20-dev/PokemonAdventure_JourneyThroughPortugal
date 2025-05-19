@@ -7,13 +7,14 @@ class SceneManager {
         this.isTransitioning = false;
         this.transitionAlpha = 1;
         this.transitionSpeed = 0.05;
+        this.transitionPhase = null; // "out" ou "in"
         this.targetMap = null;
         this.transitionCallback = null;
         this.triggerAreas = [];
     }
 
     addTransitionArea(x, y, width, height, targetMap) {
-        this.triggerAreas.push({ x, y, width, height, targetMap });
+        this.triggerAreas.push({ x: x * 16, y: y * 16, width: width * 16, height: height * 16, targetMap });
     }
 
     clearTransitionAreas() { // ADICIONA ESTE MÉTODO
@@ -39,28 +40,37 @@ class SceneManager {
     startTransition(targetMap) {
         this.isTransitioning = true;
         this.transitionAlpha = 0;
+        this.transitionPhase = "out";
         this.targetMap = targetMap;
 
-        const callback = () => {
-            console.log("Transition complete. Calling loadMap with:", this.targetMap);
+        this.transitionCallback = () => {
             this.gameEngine.loadMap(this.targetMap);
-            this.isTransitioning = false;
-            this.transitionAlpha = 1;
-            this.transitionCallback = null; // Limpa o callback após a execução
+            this.transitionPhase = "in";
         };
-        this.transitionCallback = callback;
     }
 
     updateTransition() {
         if (!this.isTransitioning) return;
 
-        this.transitionAlpha += this.transitionSpeed;
-        if (this.transitionAlpha >= 1) {
-            if (this.transitionCallback) {
-                this.transitionCallback();
+        if (this.transitionPhase === "out") {
+            this.transitionAlpha += this.transitionSpeed;
+            if (this.transitionAlpha >= 1) {
+                this.transitionAlpha = 1;
+                if (this.transitionCallback) {
+                    this.transitionCallback();
+                    this.transitionCallback = null;
+                }
+            }
+        } else if (this.transitionPhase === "in") {
+            this.transitionAlpha -= this.transitionSpeed;
+            if (this.transitionAlpha <= 0) {
+                this.transitionAlpha = 0;
+                this.isTransitioning = false;
+                this.transitionPhase = null;
             }
         }
     }
+
 
     renderTransition() {
         if (!this.isTransitioning) return;
