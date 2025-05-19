@@ -11,8 +11,8 @@ var Pokemon = Entity.extend(function () {
             imgURL: imgUrl,
             sourceX: 0,
             sourceY: 0,
-            sourceWidth: 32,
-            sourceHeight: 48
+            sourceWidth: 96,
+            sourceHeight: 96
         };
         this.name = pName;
         this.maxHp = hp;

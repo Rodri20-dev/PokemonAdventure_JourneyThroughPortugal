@@ -68,7 +68,7 @@ class Intro {
 
         if (this.showPressEnter) {
             this.ctx.fillStyle = "#FFFFFF";
-            this.ctx.font = "8px 'Press Start 2P'";
+            this.ctx.font = "16px 'PokemonFont'";
             this.ctx.textAlign = "center";
             this.ctx.fillText("PRESS ENTER", this.canvas.width / 2, this.canvas.height - 20);
         }

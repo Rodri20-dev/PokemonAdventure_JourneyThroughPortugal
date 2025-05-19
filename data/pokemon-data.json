@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Charmander",
+    "hp": 100,
+    "attack": 20,
+    "imgFront": "assets/images/pokemons/charmander_front.png",
+    "imgBack": "assets/images/pokemons/charmander_back.png"
+  },
+  {
+    "name": "Bulbasaur",
+    "hp": 90,
+    "attack": 18,
+    "imgFront": "assets/images/pokemons/bulbasaur_front.png",
+    "imgBack": "assets/images/pokemons/bulbasaur_back.png"
+  },
+  {
+    "name": "Squirtle",
+    "hp": 95,
+    "attack": 17,
+    "imgFront": "assets/images/pokemons/squirtle_front.png",
+    "imgBack": "assets/images/pokemons/squirtle_back.png"
+  },
+  {
+    "name": "Pidgey",
+    "hp": 60,
+    "attack": 15,
+    "imgFront": "assets/images/pokemons/pidgey_front.png",
+    "imgBack": "assets/images/pokemons/pidgey_back.png"
+  },
+  {
+    "name": "Rattata",
+    "hp": 55,
+    "attack": 14,
+    "imgFront": "assets/images/pokemons/rattata_front.png",
+    "imgBack": "assets/images/pokemons/rattata_back.png"
+  },
+  {
+    "name": "Jigglypuff",
+    "hp": 80,
+    "attack": 16,
+    "imgFront": "assets/images/pokemons/jigglypuff_front.png",
+    "imgBack": "assets/images/pokemons/jigglypuff_back.png"
+  },
+  {
+    "name": "Zubat",
+    "hp": 65,
+    "attack": 15,
+    "imgFront": "assets/images/pokemons/zubat_front.png",
+    "imgBack": "assets/images/pokemons/zubat_back.png"
+  },
+  {
+    "name": "Psyduck",
+    "hp": 70,
+    "attack": 18,
+    "imgFront": "assets/images/pokemons/psyduck_front.png",
+    "imgBack": "assets/images/pokemons/psyduck_back.png"
+  },
+  {
+    "name": "Meowth",
+    "hp": 60,
+    "attack": 17,
+    "imgFront": "assets/images/pokemons/meowth_front.png",
+    "imgBack": "assets/images/pokemons/meowth_back.png"
+  },
+  {
+    "name": "Geodude",
+    "hp": 85,
+    "attack": 19,
+    "imgFront": "assets/images/pokemons/geodude_front.png",
+    "imgBack": "assets/images/pokemons/geodude_back.png"
+  }
+]

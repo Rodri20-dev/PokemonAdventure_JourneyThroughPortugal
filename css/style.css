@@ -4,6 +4,11 @@
   src: url('../assets/fonts/PressStart2P-Regular.ttf');
 }
 
+@font-face {
+  font-family: 'PokemonFont';
+  src: url('../assets/fonts/pokemon_fire_red.ttf');
+}
+
 body {
   margin: 0;
   overflow: hidden;
@@ -17,7 +22,7 @@ body {
 }
 
 /* Estilos para o canvas do jogo */
-#game-canvas {
+canvas {
   display: block;
   width: 70%;
   height: auto;
