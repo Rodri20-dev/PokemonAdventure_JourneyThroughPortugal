@@ -1,28 +1,38 @@
+//BattleSystem.js
+import Pokemon from "../entities/Pokemon.js";
+
 const canvas = document.getElementById('battleCanvas');
 const ctx = canvas.getContext('2d');
 
-class Pokemon {
-  constructor(name, hp, attack, imgSrc) {
-    this.name = name;
-    this.maxHp = hp;
-    this.hp = hp;
-    this.attack = attack;
-    this.img = new Image();
-    this.img.src = imgSrc;
-  }
-
-  isAlive() {
-    return this.hp > 0;
-  }
-}
-
 // Você pode trocar os caminhos das imagens
-const playerPokemon = new Pokemon("Charmander", 100, 20, "assets/charmander_back.png");
-const wildPokemon = new Pokemon("Pidgey", 60, 15, "assets/pidgey_front.png");
 
-let message = "Um Pidgey selvagem apareceu!";
+
 let playerTurn = true;
 let battleOver = false;
+let playerPokemon
+let wildPokemon
+let message
+window.addEventListener("load", initGame, false);
+
+
+function initGame() {
+  playerPokemon = new Pokemon("Charmander", 100, 20, "assets/charmander_back.png");
+  wildPokemon = new Pokemon("Pidgey", 60, 15, "assets/pidgey_front.png");
+
+  playerPokemon.sprite.img = new Image()
+  wildPokemon.sprite.img = new Image()
+
+  message = `Um ${wildPokemon.name} selvagem apareceu!`;
+
+  playerPokemon.sprite.img.onload = () => {
+    wildPokemon.sprite.img.onload = () => {
+      drawBattle();
+    };
+  };
+
+  playerPokemon.sprite.img.src = playerPokemon.sprite.imgURL
+  wildPokemon.sprite.img.src = wildPokemon.sprite.imgURL
+}
 
 // Desenha o estado atual da batalha
 function drawBattle() {
@@ -33,8 +43,8 @@ function drawBattle() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Sprites
-  ctx.drawImage(playerPokemon.img, 60, 200, 100, 100);
-  ctx.drawImage(wildPokemon.img, 300, 50, 100, 100);
+  ctx.drawImage(playerPokemon.sprite.img, 60, 200, 100, 100);
+  ctx.drawImage(wildPokemon.sprite.img, 300, 50, 100, 100);
 
   // Barras de vida
   drawHealthBar(playerPokemon, 60, 180);
@@ -124,9 +134,3 @@ function flee() {
   drawBattle();
 }
 
-// Começa a batalha
-playerPokemon.img.onload = () => {
-  wildPokemon.img.onload = () => {
-    drawBattle();
-  };
-};
