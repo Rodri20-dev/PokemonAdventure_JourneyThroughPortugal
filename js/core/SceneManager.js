@@ -16,6 +16,10 @@ class SceneManager {
         this.triggerAreas.push({ x, y, width, height, targetMap });
     }
 
+    clearTransitionAreas() { // ADICIONA ESTE MÉTODO
+        this.triggerAreas = [];
+    }
+
     checkTransitionAreas(playerX, playerY) {
         if (this.isTransitioning) return;
 
@@ -36,12 +40,15 @@ class SceneManager {
         this.isTransitioning = true;
         this.transitionAlpha = 0;
         this.targetMap = targetMap;
-        
-            console.log("Transition complete. Calling loadMap with:", this.targetMap); // ADICIONE ESTA LINHA
+
+        const callback = () => {
+            console.log("Transition complete. Calling loadMap with:", this.targetMap);
             this.gameEngine.loadMap(this.targetMap);
             this.isTransitioning = false;
             this.transitionAlpha = 1;
-        
+            this.transitionCallback = null; // Limpa o callback após a execução
+        };
+        this.transitionCallback = callback;
     }
 
     updateTransition() {
@@ -51,7 +58,6 @@ class SceneManager {
         if (this.transitionAlpha >= 1) {
             if (this.transitionCallback) {
                 this.transitionCallback();
-                this.transitionCallback = null;
             }
         }
     }

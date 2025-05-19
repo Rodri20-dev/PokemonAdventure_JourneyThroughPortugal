@@ -21,16 +21,8 @@ function initGame() {
 }
 
 function gameLoop() {
-    requestAnimationFrame(gameLoop);
-    if (titleScreen.isActive) {
-        titleScreen.update();
-        titleScreen.render();
-    } else if (!gameEngine) {
-        startGame();
-    } else {
-        gameEngine.update();
-        gameEngine.render();
-    }
+     titleScreen.isActive ? (titleScreen.update(), requestAnimationFrame(gameLoop),
+    titleScreen.render()) : startGame()
 }
 
 function startGame() {

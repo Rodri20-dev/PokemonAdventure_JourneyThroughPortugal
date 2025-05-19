@@ -20,7 +20,7 @@ class CollisionDetector {
         });
     }
 
-    isColliding(x, y, width, height) {
+    isColliding(x, y, height) {
         const tileWidth = this.mapData.tilewidth;
         const tileHeight = this.mapData.tileheight;
 

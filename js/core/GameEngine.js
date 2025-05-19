@@ -2,8 +2,9 @@
 import CollisionDetector from "./CollisionDetector.js";
 import InputHandler from "./InputHandler.js";
 import Player from "../entities/Player.js";
-import SceneManager from "./SceneManager.js"; // Importa SceneManager
+import SceneManager from "./SceneManager.js"; 
 
+let playerTransitionLocation = '';
 class GameEngine {
     constructor(canvas) {
         this.canvas = canvas;
@@ -15,49 +16,89 @@ class GameEngine {
         this.collisionDetector = null;
         this.inputHandler = new InputHandler(this.player);
         this.assetsLoaded = 0;
-        this.sceneManager = new SceneManager(this); // Cria instância do SceneManager
+        this.sceneManager = new SceneManager(this); 
 
         this.gameLoop = this.gameLoop.bind(this);
     }
 
     start() {
-        this.loadMap('pallet-town'); // Carrega o mapa inicial
-        window.addEventListener("keydown", this.inputHandler.handleKeyDown.bind(this.inputHandler));
-        window.addEventListener("keyup", this.inputHandler.handleKeyUp.bind(this.inputHandler));
+        this.loadMap('map'); // Carrega o mapa inicial
+        
+        this.keydownHandler = this.inputHandler.handleKeyDown.bind(this.inputHandler);
+        this.keyupHandler = this.inputHandler.handleKeyUp.bind(this.inputHandler);
 
-        // Define as áreas de transição (exemplo)
-        this.sceneManager.addTransitionArea(400, 50, 32, 35, 'map2-data');
-        this.sceneManager.addTransitionArea(400, 470, 32, 32, 'route22');
+        window.addEventListener("keydown", this.keydownHandler);
+        window.addEventListener("keyup", this.keyupHandler);
 
-        this.gameLoop();
+        this.sceneManager.addTransitionArea(5 * 16, 17 * 16, 32, 32, 'map2');
     }
 
     async loadMap(mapName) {
         console.log("loadMap function called with:", mapName);
-        this.assetsLoaded = 0; // Reset assets loaded
-        const res = await fetch(`../../data/${mapName}.json`); // Assumindo ficheiros .json para os mapas
+        // this.assetsLoaded = 0; // Reset assets loaded
+        const res = await fetch(`../../data/${mapName}-data.json`); 
         const data = await res.json();
         this.mapData = data;
         // console.log(this.mapData);
         this.collisionDetector = new CollisionDetector(this.mapData);
 
-        this.mapImg.removeEventListener("load", this.checkAssetsLoaded); // Remove listeners antigos
-        this.player.sprite.img.removeEventListener("load", this.checkAssetsLoaded);
+        // Remove listeners antigos
+        this.mapImg.removeEventListener("load", this.checkAssetsLoaded.bind(this)); 
+        this.player.sprite.img.removeEventListener("load", this.checkAssetsLoaded.bind(this));
 
-        this.mapImg = new Image();
-        this.player.sprite.img = new Image();
+        //this.mapImg = new Image();
+        //this.player.sprite.img = new Image();
 
-        this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
-        this.player.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
+         if (this.assetsLoaded <= 2) {
+            this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
+            this.player.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
+         }
+        
 
         this.mapImg.src = `assets/images/maps/${mapName}.png`;
         this.player.sprite.img.src = this.player.sprite.imgURL;
+
+        this.defineMapTransitionAreas(mapName); 
+    }
+
+    defineMapTransitionAreas(mapName) {
+        // Mapa 1 - Transições e Coordenadas do PLayer
+        if (mapName === 'map') {
+
+            // Define as áreas de transição específicas para o mapa 'Pallet-Town' aqui
+            if (playerTransitionLocation === 'map') {
+                console.log("1"); 
+                this.player.x = 8*16;
+                this.player.y = 17*16;
+            }
+            
+            playerTransitionLocation = 'map2'; 
+
+            //Transição do MAPA 1 para o MAPA 2
+            this.sceneManager.addTransitionArea(3 * 16, 15 * 16, 32, 32, 'map2');
+                              
+        // Mapa 2 - Transições e Coordenadas do PLayer
+        } else if (mapName === 'map2') {
+            if (playerTransitionLocation = 'map2') {
+                console.log("2");
+                
+                console.log(playerTransitionLocation);
+                this.player.x = 45*16;
+                this.player.y = 100;
+            }
+
+            playerTransitionLocation = 'map'; 
+
+            //Transição do MAPA 2 para o MAPA 1
+            this.sceneManager.addTransitionArea(47 * 16, 100, 16, 16, 'map');
+            
+        }
     }
 
     checkAssetsLoaded() {
         this.assetsLoaded++;
         if (this.assetsLoaded === 2) {
-            // Assets do mapa carregados
+            this.gameLoop()
         }
     }
 
@@ -72,16 +113,30 @@ class GameEngine {
         let newX = this.player.x;
         let newY = this.player.y;
 
-        if (activeKey === "ArrowUp") newY -= this.player.speed;
-        else if (activeKey === "ArrowDown") newY += this.player.speed;
-        else if (activeKey === "ArrowLeft") newX -= this.player.speed;
-        else if (activeKey === "ArrowRight") newX += this.player.speed;
+                if (activeKey === "ArrowUp") {
+            newY -= this.player.speed;
+            this.player.state = this.player.states.UP;
+        } else if (activeKey === "ArrowDown") {
+            newY += this.player.speed;
+            this.player.state = this.player.states.DOWN;
+        } else if (activeKey === "ArrowLeft") {
+            newX -= this.player.speed;
+            this.player.state = this.player.states.LEFT;
+        } else if (activeKey === "ArrowRight") {
+            newX += this.player.speed;
+            this.player.state = this.player.states.RIGHT;
+        }
 
         if (activeKey) this.player.updateAnimation();
 
+
         if (this.collisionDetector) {
-            if (!this.collisionDetector.isColliding(newX, this.player.y, this.player.width, this.player.height)) this.player.x = newX;
-            if (!this.collisionDetector.isColliding(this.player.x, newY, this.player.width, this.player.height)) this.player.y = newY;
+            if (!this.collisionDetector.isColliding(newX, this.player.y, this.player.height)) {
+                this.player.x = newX;
+            }
+            if (!this.collisionDetector.isColliding(this.player.x, newY, this.player.height)) {
+                this.player.y = newY;
+            }
         }
 
         this.sceneManager.checkTransitionAreas(this.player.x, this.player.y);
@@ -103,22 +158,28 @@ class GameEngine {
             );
         }
 
+        const dx = (this.canvas.width - this.player.width) / 2;
+        const dy = (this.canvas.height - this.player.height) / 2;
         this.ctx.drawImage(
             this.player.sprite.img,
             this.player.sprite.sourceX, this.player.sprite.sourceY,
             this.player.sprite.sourceWidth, this.player.sprite.sourceHeight,
-            (this.canvas.width - this.player.width) / 2,
-            (this.canvas.height - this.player.height) / 2,
-            this.player.width, this.player.height
+            dx, dy, this.player.width, this.player.height
         );
 
-        // Desenha a primeira área de transição AJUSTADA PARA A CÂMARA
+                // Desenha a primeira área de transição AJUSTADA PARA A CÂMARA
+
         this.ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-        this.ctx.fillRect(400 - camX, 50 - camY, 32, 35);
+
+        this.ctx.fillRect((5*16) - camX, (17*16) - camY, 32, 32);
+
+
 
         // Desenha a segunda área de transição AJUSTADA PARA A CÂMARA
+
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
-        this.ctx.fillRect(400 - camX, 470 - camY, 32, 32);
+
+        this.ctx.fillRect(48*16 - camX, 100 - camY, 16, 16);
 
         this.sceneManager.renderTransition();
     }
