@@ -22,7 +22,7 @@ class Intro {
         this.img.onload = () => {
             this.loaded = true;
         };
-        this.img.src = '/assets/images/intro/intro.png';
+        this.img.src = 'assets/images/intro/intro.png';
     }
 
     update() {
@@ -40,7 +40,6 @@ class Intro {
             }
         }
 
-        // ✨ Texto piscante
         this.blinkTimer++;
         if (this.blinkTimer >= 30) {
             this.blinkTimer = 0;

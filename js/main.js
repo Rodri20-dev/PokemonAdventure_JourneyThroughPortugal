@@ -17,6 +17,8 @@ function initGame() {
     gameSounds = new Sounds(); 
 
     titleScreen = new TitleScreen(canvas);
+    gameSounds.playSound("intro_theme.mp3");
+    
     titleKeyHandler = titleScreen.handleKeyDown.bind(titleScreen);
     window.addEventListener("keydown", titleKeyHandler);
     gameLoop();
@@ -42,5 +44,5 @@ function startGame() {
     }
     
     gameEngine.start(); 
-    gameSounds.playMapBGM(); // Inicia a música do mapa
+    gameSounds.playSound("map_theme.mp3"); // Inicia a música do mapa
 }
