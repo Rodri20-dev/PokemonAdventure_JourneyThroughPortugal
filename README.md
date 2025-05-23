@@ -14,7 +14,7 @@ pokemon-adventure/
 │
 ├── /core                       # Núcleo do motor de jogo
 │   ├── GameEngine.js           # Classe GameEngine: update, render, load
-│   ├── InputHandler.js         # Classe InputHandler: teclas e comandos
+│   ├── MovementHandler.js         # Classe MovementHandler: teclas e comandos
 │   ├── CollisionDetector.js    # Classe para colisões entre entidades
 │   ├── BattleSystem.js         # Classe de combate por turnos
 │   └── AI.js                   # Lógica de movimentação inteligente para NPCs
