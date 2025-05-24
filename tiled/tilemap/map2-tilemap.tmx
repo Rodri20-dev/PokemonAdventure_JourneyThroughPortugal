@@ -115,6 +115,11 @@
     <property name="collide" type="bool" value="true"/>
    </properties>
   </tile>
+  <tile id="24">
+   <properties>
+    <property name="isGrass" type="bool" value="true"/>
+   </properties>
+  </tile>
   <tile id="25">
    <properties>
     <property name="collide" type="bool" value="true"/>

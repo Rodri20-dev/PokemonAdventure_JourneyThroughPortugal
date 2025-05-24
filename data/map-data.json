@@ -312,6 +312,15 @@
                         }]
                 }, 
                 {
+                 "id":35,
+                 "properties":[
+                        {
+                         "name":"isGrass",
+                         "type":"bool",
+                         "value":true
+                        }]
+                }, 
+                {
                  "id":42,
                  "properties":[
                         {
@@ -517,7 +526,8 @@
                          "type":"bool",
                          "value":true
                         }]
-                }, 
+                },
+            
                 {
                  "id":69,
                  "properties":[
@@ -526,8 +536,7 @@
                          "type":"bool",
                          "value":true
                         }]
-                },
-            
+                }, 
                 {
                  "id":70,
                  "properties":[

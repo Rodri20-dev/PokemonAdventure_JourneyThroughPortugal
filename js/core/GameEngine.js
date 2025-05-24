@@ -149,19 +149,38 @@ class GameEngine {
             const tileId = this.world.data.layers[0].data[tileIndex];
 
             console.log(tileId)
-            // Se tile é grama (id 35)
-            if (tileId === 36) {
-                console.log("jj")
+            const tilesets = this.world.data.tilesets;
+            let isGrass = false;
+
+            for (let tileset of tilesets) {
+                const firstGid = tileset.firstgid;
+                const tileCount = tileset.tilecount || (tileset.imagewidth / tileset.tilewidth) * (tileset.imageheight / tileset.tileheight);
+
+                if (tileId >= firstGid && tileId < firstGid + tileCount) {
+                    const localId = tileId - firstGid;
+                    const tile = tileset.tiles?.find(t => t.id === localId);
+                    if (tile && tile.properties) {
+                        const grassProp = tile.properties.find(p => p.name === "isGrass" && p.value === true);
+                        if (grassProp) {
+                            isGrass = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (isGrass) {
                 this.isOnGrass = true;
                 this.grassTilePos = { x: tileX, y: tileY };
 
-                if (Math.random() < 0.05) {
+                if (Math.random() < 0.001) {
                     this.startBattle();
                 }
             } else {
                 this.isOnGrass = false;
                 this.grassTilePos = null;
             }
+
         }
     }
 
@@ -220,9 +239,9 @@ class GameEngine {
     }
 
     startBattle() {
-    console.log("Batalha iniciada!");
-    // Aqui você pode chamar sua lógica de batalha, troca de cena, etc
-}
+        console.log("Batalha iniciada!");
+        // Aqui você pode chamar sua lógica de batalha, troca de cena, etc
+    }
 
 }
 
