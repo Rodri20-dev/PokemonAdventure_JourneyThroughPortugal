@@ -3,14 +3,15 @@ import CollisionDetector from "./CollisionDetector.js";
 import MovementHandler from "./MovementHandler.js";
 import Player from "../entities/Player.js";
 import SceneManager from "./SceneManager.js";
+import World from "../entities/World.js";
 
 let playerTransitionLocation = '';
 class GameEngine {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
-        this.mapData = null;
-        this.mapImg = new Image();
+        this.world = new World();
+        this.world.sprite.img = new Image();
         this.player = new Player();
         this.player.sprite.img = new Image();
         this.collisionDetector = null;
@@ -18,6 +19,7 @@ class GameEngine {
         this.assetsLoaded = 0;
         this.sceneManager = new SceneManager(this);
         this.gameLoop = this.gameLoop.bind(this);
+        this.lastMap
     }
 
     start() {
@@ -31,29 +33,32 @@ class GameEngine {
     }
 
     async loadMap(mapName) {
+        let world = this.world
+        this.lastMap = mapName
         this.sceneManager.clearTransitionAreas();
-        console.log("loadMap function called with:", mapName);
-        // this.assetsLoaded = 0; // Reset assets loaded
+
         const res = await fetch(`../../data/${mapName}-data.json`);
         const data = await res.json();
-        this.mapData = data;
-        // console.log(this.mapData);
-        this.collisionDetector = new CollisionDetector(this.mapData);
+        world.data = data;
+
+        this.collisionDetector = new CollisionDetector(world.data);
 
         // remover listeners antigos
-        this.mapImg.removeEventListener("load", this.checkAssetsLoaded.bind(this));
+        world.sprite.img.removeEventListener("load", this.checkAssetsLoaded.bind(this));
         this.player.sprite.img.removeEventListener("load", this.checkAssetsLoaded.bind(this));
 
         if (this.assetsLoaded <= 2) {
-            this.mapImg.addEventListener("load", this.checkAssetsLoaded.bind(this));
+            world.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
             this.player.sprite.img.addEventListener("load", this.checkAssetsLoaded.bind(this));
         }
 
 
-        this.mapImg.src = `assets/images/maps/${mapName}.png`;
+        world.sprite.img.src = `assets/images/maps/${mapName}.png`;
         this.player.sprite.img.src = this.player.sprite.imgURL;
 
         this.defineMapTransitionAreas(mapName);
+        console.log("loadMap function called with:", mapName);
+
     }
 
     defineMapTransitionAreas(mapName) {
@@ -62,7 +67,7 @@ class GameEngine {
 
             if (playerTransitionLocation === 'map') {
                 console.log("1");
-                this.player.x = 9 * 16;
+                this.player.x = 3 * 16;
                 this.player.y = 17 * 16;
             }
 
@@ -121,7 +126,7 @@ class GameEngine {
             this.player.state = this.player.states.RIGHT;
         }
 
-        if (activeKey)  this.player.updateAnimation()
+        if (activeKey) this.player.update()
 
 
         if (this.collisionDetector) {
@@ -135,22 +140,58 @@ class GameEngine {
 
         this.sceneManager.checkTransitionAreas(this.player.x, this.player.y);
         this.sceneManager.updateTransition()
+
+        // --- Highlight na grama e batalha aleatória ---
+        if (this.world.data && this.world.data.layers && this.world.data.layers[0]) {
+            const tileX = Math.floor(this.player.x / this.world.data.tilewidth);
+            const tileY = Math.floor(this.player.y / this.world.data.tileheight);
+            const tileIndex = tileY * this.world.data.width + tileX;
+            const tileId = this.world.data.layers[0].data[tileIndex];
+
+            console.log(tileId)
+            // Se tile é grama (id 35)
+            if (tileId === 36) {
+                console.log("jj")
+                this.isOnGrass = true;
+                this.grassTilePos = { x: tileX, y: tileY };
+
+                if (Math.random() < 0.05) {
+                    this.startBattle();
+                }
+            } else {
+                this.isOnGrass = false;
+                this.grassTilePos = null;
+            }
+        }
     }
 
     render() {
+        let world = this.world
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         const camX = this.player.x - this.canvas.width / 2;
         const camY = this.player.y - this.canvas.height / 2;
 
-        if (this.mapImg && this.mapData) {
+        if (world.sprite.img && world.data) {
             this.ctx.drawImage(
-                this.mapImg,
+                world.sprite.img,
                 -camX, -camY,
-                this.mapData.width * this.mapData.tilewidth,
-                this.mapData.height * this.mapData.tileheight
+                world.data.width * world.data.tilewidth,
+                world.data.height * world.data.tileheight
             );
         }
+
+        // Highlight na grama
+        if (this.isOnGrass && this.grassTilePos) {
+            this.ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
+            this.ctx.fillRect(
+                (this.grassTilePos.x * this.world.data.tilewidth) - camX,
+                (this.grassTilePos.y * this.world.data.tileheight) - camY,
+                this.world.data.tilewidth,
+                this.world.data.tileheight
+            );
+        }
+
 
         const dx = (this.canvas.width - this.player.width) / 2;
         const dy = (this.canvas.height - this.player.height) / 2;
@@ -177,6 +218,12 @@ class GameEngine {
 
         this.sceneManager.renderTransition();
     }
+
+    startBattle() {
+    console.log("Batalha iniciada!");
+    // Aqui você pode chamar sua lógica de batalha, troca de cena, etc
+}
+
 }
 
 export default GameEngine;

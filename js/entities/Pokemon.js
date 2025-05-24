@@ -23,6 +23,10 @@ var Pokemon = Entity.extend(function () {
     this.isAlive = function () {
         return this.hp > 0;
     };
+
+    this.update= function(){
+ 
+   };
 });
 
 export default Pokemon

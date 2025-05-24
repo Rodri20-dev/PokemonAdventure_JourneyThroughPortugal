@@ -14,8 +14,8 @@ var Player = Entity.extend(function () {
             sourceWidth: 32,
             sourceHeight: 48
         };
-        this.x = 160;
-        this.y = 128;
+        this.x = 11*16 + 8;
+        this.y = 8*16;
         this.width = 16;
         this.height = 24;
         this.speed = 4;
@@ -32,7 +32,7 @@ var Player = Entity.extend(function () {
         this.animationSpeed = 8;
     };
 
-    this.updateAnimation = function () {
+    this.update = function () {
         this.animationCounter++;
         if (this.animationCounter >= this.animationSpeed) {
             this.currentFrame = (this.currentFrame + 1) % this.numberOfFrames;

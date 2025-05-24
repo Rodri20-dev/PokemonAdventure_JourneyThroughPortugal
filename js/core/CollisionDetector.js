@@ -31,8 +31,8 @@ class CollisionDetector {
         const pointsToCheck = [
             { px: x - 4, py: y }, // canto superior esquerdo
             { px: x + 4, py: y }, // canto superior direito
-            { px: x - 4, py: y + height - 15 }, // canto inferior esquerdo
-            { px: x + 4, py: y + height - 15 } // canto inferior direito
+            { px: x - 4, py: y + height - 16 }, // canto inferior esquerdo
+            { px: x + 4, py: y + height - 16 } // canto inferior direito
         ];
 
         for (const point of pointsToCheck) {
