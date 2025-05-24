@@ -30,6 +30,7 @@ var Player = Entity.extend(function () {
         this.state = 0;
         this.animationCounter = 0;
         this.animationSpeed = 8;
+        this.pokemons = [];
     };
 
     this.update = function () {

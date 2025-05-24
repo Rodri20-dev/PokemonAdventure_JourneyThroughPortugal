@@ -1,301 +1,343 @@
 import Pokemon from "../entities/Pokemon.js";
 
-const canvas = document.getElementById('battleCanvas');
-const ctx = canvas.getContext('2d');
-let bgImage = new Image();
-let barImage = new Image();
-let playerTurn = true;
-let battleOver = false;
-let playerPokemon;
-let wildPokemon;
-let message;
+class Battle {
+  constructor(canvas, ctx) {
+    this.canvas = canvas;
+    this.ctx = ctx;
 
-const menuOptions = ["Atacar", "Capturar", "Fugir"];
-let selectedOption = 0;
-let showMenu = true;
-let pokemonData = null;
-let qteActive = false;
-let qteBarX = 0;
-let qteInterval = null;
+    this.bgImage = new Image();
+    this.barImage = new Image();
+    this.playerTurn = true;
+    this.battleOver = false;
+    this.playerPokemon = null;
+    this.wildPokemon = null;
+    this.message = "";
 
-const qte = {
-  barWidth: 200,
-  zoneStart: 80,
-  zoneWidth: 40,
-  speed: 5
-};
+    this.menuOptions = ["Atacar", "Capturar", "Fugir"];
+    this.selectedOption = 0;
+    this.showMenu = false;
+    this.pokemonData = null;
+    this.qteActive = false;
+    this.qteBarX = 0;
+    this.qteInterval = null;
 
-window.addEventListener("load", loadPokemonData, false);
+    this.assetsLoaded = 0;
 
-async function loadPokemonData() {
-  try {
-    const response = await fetch("./data/pokemon-data.json");
-    if (!response.ok) throw new Error("Falha ao carregar os dados dos Pokémons.");
-    pokemonData = await response.json();
-    initGame();
-  } catch (error) {
-    console.error("Erro ao carregar os dados dos Pokémons:", error);
-  }
-}
+    this.qte = {
+      barWidth: 200,
+      zoneStart: 80,
+      zoneWidth: 40,
+      speed: 5
+    };
+    this.fadeAlpha = 0;
+    this.fadeInActive = false;
 
-function initGame() {
-  const meuInicial = pokemonData[1];
-  const random2 = pokemonData[Math.floor(Math.random() * pokemonData.length)];
-
-  playerPokemon = new Pokemon(meuInicial.name, meuInicial.hp, meuInicial.zttack, meuInicial.imgBack);
-  wildPokemon = new Pokemon(random2.name, random2.hp, random2.attack, random2.imgFront);
-
-  playerPokemon.sprite.img = new Image();
-  wildPokemon.sprite.img = new Image();
-
-  message = `Um ${wildPokemon.name} selvagem apareceu!`;
-
-  playerPokemon.sprite.img.onload = checkAssetsLoaded;
-  wildPokemon.sprite.img.onload = checkAssetsLoaded;
-  bgImage.onload = checkAssetsLoaded;
-  barImage.onload = checkAssetsLoaded
-  playerPokemon.sprite.img.src = playerPokemon.sprite.imgURL;
-  wildPokemon.sprite.img.src = wildPokemon.sprite.imgURL;
-  bgImage.src = "assets/images/maps/battle_backgrounds_by_kwharever.png";
-  barImage.src = "assets/images/maps/battle_bar.png";
-}
-
-let assetsLoaded = 0;
-function checkAssetsLoaded() {
-  assetsLoaded++;
-  if (assetsLoaded === 4) {
-    drawBattle();
-  }
-}
-
-function drawBattle() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.drawImage(bgImage, 2 * 240, 0, 240, 112, 0, 0, canvas.width, canvas.height * 0.7);
-  ctx.drawImage(barImage, 0, 0, 240, 48, 0, canvas.height * 0.7, 
-    canvas.width, canvas.height * 0.3);
-
-  const sw = playerPokemon.sprite.sourceWidth;
-  const sh = playerPokemon.sprite.sourceHeight;
-
-  const playerX = canvas.width * 0.25 - sw / 2;
-  const playerY = canvas.height * 0.60 - sh / 2;
-  const wildX = canvas.width * 0.72 - sw / 2;
-  const wildY = canvas.height * 0.30 - sh / 2;
-
-  ctx.drawImage(playerPokemon.sprite.img, playerX, playerY, sw, sh);
-  ctx.drawImage(wildPokemon.sprite.img, wildX, wildY, sw, sh);
-
-  drawHealthBar(playerPokemon, playerX, playerY + 10);
-  drawHealthBar(wildPokemon, wildX, wildY + 10);
-
-  ctx.fillStyle = "black";
-  ctx.font = "16px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(message, canvas.width / 2, canvas.height - 20);
-
-  if (!battleOver && showMenu) drawMenu();
-  if (qteActive) drawQTE();
-}
-
-function drawHealthBar(pokemon, x, y) {
-  const barWidth = 100;
-  const hpPercent = pokemon.hp / pokemon.maxHp;
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(x, y, barWidth, 10);
-  ctx.fillStyle = hpPercent > 0.5 ? "green" : hpPercent > 0.2 ? "orange" : "red";
-  ctx.fillRect(x, y, barWidth * hpPercent, 10);
-}
-
-function drawMenu() {
-  const menuWidth = canvas.width;
-  const menuHeight = canvas.height * 0.3;
-  const menuY = 112;
-
-
-  for (let i = 0; i < menuOptions.length; i++) {
-    const text = menuOptions[i];
-    const textX = 40;
-    const textY = menuY + 10 + i * (menuHeight / menuOptions.length);
-    ctx.fillText(text, textX, textY);
-    if (i === selectedOption) ctx.fillText("➤", textX - 20, textY);
-  }
-}
-
-function startQTE() {
-  qteActive = true;
-  qteBarX = 0;
-  qteInterval = setInterval(() => {
-    qteBarX += qte.speed;
-    if (qteBarX > qte.barWidth) qteBarX = 0;
-    drawBattle();
-  }, 30);
-}
-
-function drawQTE() {
-  const barX = (canvas.width - qte.barWidth) / 2;
-  const barY = canvas.height * 0.75;
-
-  ctx.fillStyle = "#ddd";
-  ctx.fillRect(barX, barY, qte.barWidth, 20);
-
-  ctx.fillStyle = "green";
-  ctx.fillRect(barX + qte.zoneStart, barY, qte.zoneWidth, 20);
-
-  ctx.fillStyle = "red";
-  ctx.fillRect(barX + qteBarX, barY, 10, 20);
-
-  ctx.strokeStyle = "black";
-  ctx.strokeRect(barX, barY, qte.barWidth, 20);
-}
-
-function resolveQTE() {
-  clearInterval(qteInterval);
-  qteActive = false;
-
-  const barX = (canvas.width - qte.barWidth) / 2;
-  const relative = qteBarX;
-
-  let multiplier;
-  if (relative >= qte.zoneStart && relative <= qte.zoneStart + qte.zoneWidth) {
-    multiplier = 1.0;
-    message = "Acerto perfeito!";
-  } else if (Math.abs(relative - (qte.zoneStart + qte.zoneWidth / 2)) <= 20) {
-    multiplier = 0.7;
-    message = "Acerto razoável!";
-  } else {
-    multiplier = 0.4;
-    message = "Errou o tempo!";
+    window.addEventListener("keydown", (e) => this.handleMenuNavigation(e));
   }
 
-  const damage = Math.floor(playerPokemon.attack * multiplier);
-  wildPokemon.hp -= damage;
-
-  if (wildPokemon.hp <= 0) {
-    wildPokemon.hp = 0;
-    message += `\nVocê derrotou o ${wildPokemon.name}!`;
-    battleOver = true;
-  } else {
-    playerTurn = false;
-    setTimeout(enemyAttack, 1000);
+  async loadPokemonData() {
+    try {
+      const response = await fetch("./data/pokemon-data.json");
+      if (!response.ok) throw new Error("Falha ao carregar os dados dos Pokémons.");
+      this.pokemonData = await response.json();
+      this.initGame();
+    } catch (error) {
+      console.error("Erro ao carregar os dados dos Pokémons:", error);
+    }
   }
 
-  drawBattle();
-}
+  initGame() {
+    const meuInicial = this.pokemonData[1];
+    console.log(meuInicial)
+    const random2 = this.pokemonData[Math.floor(Math.random() * this.pokemonData.length)];
 
-function attack() {
-  if (battleOver || !playerTurn) return;
-  message = "Aperte [Z] no momento certo!";
-  drawBattle();
-  startQTE();
-}
+    this.playerPokemon = new Pokemon(meuInicial.name, meuInicial.hp, meuInicial.attack, meuInicial.imgBack);
+    this.wildPokemon = new Pokemon(random2.name, random2.hp, random2.attack, random2.imgFront);
 
-function enemyAttack() {
-  if (!wildPokemon.isAlive() || battleOver) return;
+    this.playerPokemon.sprite.img = new Image();
+    this.wildPokemon.sprite.img = new Image();
 
-  playerPokemon.hp -= wildPokemon.attack;
-  if (playerPokemon.hp <= 0) {
-    playerPokemon.hp = 0;
-    message = `${playerPokemon.name} desmaiou!`;
-    battleOver = true;
-  } else {
-    message = `${wildPokemon.name} atacou!`;
+    this.message = `Um ${this.wildPokemon.name} selvagem apareceu!`;
+
+    this.playerPokemon.sprite.img.onload = () => this.checkAssetsLoaded();
+    this.wildPokemon.sprite.img.onload = () => this.checkAssetsLoaded();
+    this.bgImage.onload = () => this.checkAssetsLoaded();
+    this.barImage.onload = () => this.checkAssetsLoaded();
+
+    this.playerPokemon.sprite.img.src = this.playerPokemon.sprite.imgURL;
+    this.wildPokemon.sprite.img.src = this.wildPokemon.sprite.imgURL;
+    this.bgImage.src = "assets/images/maps/battle_backgrounds_by_kwharever.png";
+    this.barImage.src = "assets/images/maps/battle_bar.png";
   }
 
-  playerTurn = true;
-  drawBattle();
-}
+  checkAssetsLoaded() {
+    this.assetsLoaded++;
+    if (this.assetsLoaded === 4) {
+      // Começa o fade in
+      this.fadeAlpha = 0;
+      this.fadeInActive = true;
+      this.fadeIn();
 
-function tryCapture() {
-  if (battleOver || !playerTurn) return;
-
-  const chance = Math.random();
-  if (wildPokemon.hp < wildPokemon.maxHp / 2 && chance < 0.5) {
-    message = `Você capturou o ${wildPokemon.name}!`;
-    battleOver = true;
-  } else {
-    message = "A captura falhou!";
-    playerTurn = false;
-    setTimeout(enemyAttack, 1000);
-  }
-
-  drawBattle();
-}
-
-function flee() {
-  if (battleOver || !playerTurn) return;
-
-  const chance = Math.random();
-  if (chance < 0.5) {
-    message = "Você fugiu da batalha!";
-    battleOver = true;
-  } else {
-    message = "Não conseguiu fugir!";
-    playerTurn = false;
-    setTimeout(enemyAttack, 1000);
-  }
-
-  drawBattle();
-}
-
-window.addEventListener("keydown", handleMenuNavigation);
-
-function handleMenuNavigation(e) {
-  if (qteActive && e.key.toLowerCase() === "z") {
-    resolveQTE();
-    return;
-  }
-
-  if (battleOver || !showMenu || !playerTurn) return;
-
-  switch (e.key) {
-    case "ArrowUp":
-      selectedOption = (selectedOption - 1 + menuOptions.length) % menuOptions.length;
-      drawBattle();
-      break;
-    case "ArrowDown":
-      selectedOption = (selectedOption + 1) % menuOptions.length;
-      drawBattle();
-      break;
-    case "Enter":
-      executeAction(menuOptions[selectedOption]);
-      break;
-    case "x":
-    case "Backspace":
-      message = "Você cancelou!";
-      showMenu = false;
-      drawBattle();
       setTimeout(() => {
-        showMenu = true;
-        drawBattle();
-      }, 1000);
-      break;
-  }
-}
-
-function executeAction(option) {
-  if (battleOver || !playerTurn) return;
-  showMenu = false;
-
-  switch (option) {
-    case "Atacar":
-      attack();
-      break;
-    case "Capturar":
-      tryCapture();
-      break;
-    case "Fugir":
-      flee();
-      break;
+        this.message = "";
+        this.showMenu = true;
+        this.drawBattle();
+      }, 5000);
+    }
   }
 
-  if (!battleOver && option !== "Atacar") {
-    setTimeout(() => {
-      if (playerTurn) {
-        showMenu = true;
-        drawBattle();
+  fadeIn() {
+    if (this.fadeAlpha < 1) {
+      this.fadeAlpha += 0.02; // Velocidade do fade
+      this.drawBattle();
+      requestAnimationFrame(() => this.fadeIn());
+    } else {
+      this.fadeAlpha = 1;
+      this.fadeInActive = false;
+      this.drawBattle();
+    }
+  }
+
+  drawBattle() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.ctx.globalAlpha = this.fadeAlpha;
+
+    this.ctx.drawImage(this.bgImage, 2 * 240, 0, 240, 112, 0, 0, this.canvas.width, this.canvas.height * 0.7);
+    this.ctx.drawImage(this.barImage, 0, 0, 240, 48, 0, this.canvas.height * 0.7,
+      this.canvas.width, this.canvas.height * 0.3);
+
+    const sw = this.playerPokemon.sprite.sourceWidth;
+    const sh = this.playerPokemon.sprite.sourceHeight;
+
+    const playerX = this.canvas.width * 0.25 - sw / 2;
+    const playerY = this.canvas.height * 0.60 - sh / 2;
+    const wildX = this.canvas.width * 0.72 - sw / 2;
+    const wildY = this.canvas.height * 0.30 - sh / 2;
+
+    this.ctx.drawImage(this.playerPokemon.sprite.img, playerX, playerY, sw, sh);
+    this.ctx.drawImage(this.wildPokemon.sprite.img, wildX, wildY, sw, sh);
+
+    this.drawHealthBar(this.playerPokemon, playerX, playerY + 10);
+    this.drawHealthBar(this.wildPokemon, wildX, wildY + 10);
+
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "12px PokemonFont";
+    this.ctx.textAlign = "center";
+
+    if (this.message) {
+      this.ctx.fillText(this.message, this.canvas.width / 2, this.canvas.height - 20);
+    }
+
+    if (!this.battleOver && this.showMenu) this.drawMenu();
+    if (this.qteActive) this.drawQTE();
+
+
+  }
+
+  drawHealthBar(pokemon, x, y) {
+    const barWidth = 100;
+    const hpPercent = pokemon.hp / pokemon.maxHp;
+
+    this.ctx.fillStyle = "white";
+    this.ctx.fillRect(x, y, barWidth, 10);
+    this.ctx.fillStyle = hpPercent > 0.5 ? "green" : hpPercent > 0.2 ? "orange" : "red";
+    this.ctx.fillRect(x, y, barWidth * hpPercent, 10);
+  }
+
+  drawMenu() {
+    const menuY = 140;
+    const spacing = this.canvas.width / (this.menuOptions.length + 1);
+
+    for (let i = 0; i < this.menuOptions.length; i++) {
+      const text = this.menuOptions[i];
+      const x = spacing * (i + 1);
+
+      this.ctx.fillStyle = "white";
+      this.ctx.textAlign = "center";
+      this.ctx.font = "10px monospace";
+
+      this.ctx.fillText(text, x, menuY);
+      if (i === this.selectedOption) {
+        this.ctx.fillText("⮟", x, menuY - 10);
       }
-    }, 1500);
+    }
+  }
+
+  startQTE() {
+    this.qteActive = true;
+    this.qteBarX = 0;
+    this.qteInterval = setInterval(() => {
+      this.qteBarX += this.qte.speed;
+      if (this.qteBarX > this.qte.barWidth) this.qteBarX = 0;
+      this.drawBattle();
+    }, 30);
+  }
+
+  drawQTE() {
+    const barX = (this.canvas.width - this.qte.barWidth) / 2;
+    const barY = this.canvas.height * 0.75;
+
+    this.ctx.fillStyle = "#ddd";
+    this.ctx.fillRect(barX, barY, this.qte.barWidth, 20);
+
+    this.ctx.fillStyle = "green";
+    this.ctx.fillRect(barX + this.qte.zoneStart, barY, this.qte.zoneWidth, 20);
+
+    this.ctx.fillStyle = "red";
+    this.ctx.fillRect(barX + this.qteBarX, barY, 10, 20);
+
+    this.ctx.strokeStyle = "black";
+    this.ctx.strokeRect(barX, barY, this.qte.barWidth, 20);
+  }
+
+  resolveQTE() {
+    clearInterval(this.qteInterval);
+    this.qteActive = false;
+
+    const relative = this.qteBarX;
+
+    let multiplier;
+    if (relative >= this.qte.zoneStart && relative <= this.qte.zoneStart + this.qte.zoneWidth) {
+      multiplier = 1.0;
+      this.message = "Acerto perfeito!";
+    } else if (Math.abs(relative - (this.qte.zoneStart + this.qte.zoneWidth / 2)) <= 20) {
+      multiplier = 0.7;
+      this.message = "Acerto razoável!";
+    } else {
+      multiplier = 0.4;
+      this.message = "Errou o tempo!";
+    }
+
+    const damage = Math.floor(this.playerPokemon.attack * multiplier);
+    this.wildPokemon.hp -= damage;
+
+    if (this.wildPokemon.hp <= 0) {
+      this.wildPokemon.hp = 0;
+      this.message += `\nVocê derrotou o ${this.wildPokemon.name}!`;
+
+      this.battleOver = true;
+    } else {
+      this.playerTurn = false;
+      setTimeout(() => this.enemyAttack(), 1000);
+    }
+
+    this.drawBattle();
+  }
+
+  attack() {
+    if (this.battleOver || !this.playerTurn) return;
+    this.message = "Aperte [Z] no momento certo!";
+    this.drawBattle();
+    this.startQTE();
+  }
+
+  enemyAttack() {
+    if (!this.wildPokemon.isAlive() || this.battleOver) return;
+
+    this.playerPokemon.hp -= this.wildPokemon.attack;
+    if (this.playerPokemon.hp <= 0) {
+      this.playerPokemon.hp = 0;
+      this.message = `${this.playerPokemon.name} desmaiou!`;
+      this.drawBattle()
+      this.battleOver = true;
+    } else {
+      this.message = `${this.wildPokemon.name} atacou!`;
+      this.drawBattle()
+    }
+
+    this.playerTurn = true;
+    this.showMenu = true;
+    setTimeout(() => {
+      this.message = "";
+      this.showMenu = true;
+      this.drawBattle();
+    }, 2000);
+  }
+
+  tryCapture() {
+    if (this.battleOver || !this.playerTurn) return;
+
+    const chance = Math.random();
+    if (this.wildPokemon.hp < this.wildPokemon.maxHp / 2 && chance < 0.5) {
+      this.message = `Você capturou o ${this.wildPokemon.name}!`;
+      this.battleOver = true;
+      setTimeout(() => this.endBattle(), 1000);
+    } else {
+      this.message = "A captura falhou!";
+      this.playerTurn = false;
+      setTimeout(() => this.enemyAttack(), 1000);
+    }
+
+    this.drawBattle();
+  }
+
+  flee() {
+    if (this.battleOver || !this.playerTurn) return;
+
+    const chance = Math.random();
+    if (chance < 0.5) {
+      this.message = "Você fugiu da batalha!";
+      this.showMenu = false
+      this.drawBattle();
+      setTimeout(() => this.endBattle(), 1000);
+    } else {
+      this.message = "Não conseguiu fugir!";
+      this.showMenu = false
+      this.playerTurn = false;
+      this.drawBattle();
+      setTimeout(() => this.enemyAttack(), 1000);
+    }
+  }
+
+  handleMenuNavigation(e) {
+    if (this.qteActive && e.key.toLowerCase() === "z") {
+      this.resolveQTE();
+      return;
+    }
+
+    if (!this.showMenu) return;
+
+    switch (e.key) {
+      case "ArrowRight":
+        this.selectedOption = (this.selectedOption + 1) % this.menuOptions.length;
+        this.drawBattle();
+        break;
+      case "ArrowLeft":
+        this.selectedOption = (this.selectedOption - 1 + this.menuOptions.length) % this.menuOptions.length;
+        this.drawBattle();
+        break;
+      case "Enter":
+      case "z":
+      case "Z":
+        this.selectMenuOption();
+        break;
+    }
+  }
+
+  selectMenuOption() {
+    switch (this.menuOptions[this.selectedOption]) {
+      case "Atacar":
+        this.attack();
+        break;
+      case "Capturar":
+        this.tryCapture();
+        break;
+      case "Fugir":
+        this.flee();
+        break;
+    }
+    this.showMenu = false;
+  }
+
+  endBattle() {
+    this.battleOver = true;
+    console.log("Batalha encerrada.");
+  }
+
+  isBattleOver() {
+    return this.battleOver;
   }
 }
+
+export default Battle;

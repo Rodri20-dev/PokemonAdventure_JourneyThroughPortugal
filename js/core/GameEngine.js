@@ -4,10 +4,11 @@ import MovementHandler from "./MovementHandler.js";
 import Player from "../entities/Player.js";
 import SceneManager from "./SceneManager.js";
 import World from "../entities/World.js";
+import Battle from "./BattleSystem.js"
 
 let playerTransitionLocation = '';
 class GameEngine {
-    constructor(canvas) {
+    constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
         this.world = new World();
@@ -19,6 +20,8 @@ class GameEngine {
         this.assetsLoaded = 0;
         this.sceneManager = new SceneManager(this);
         this.gameLoop = this.gameLoop.bind(this);
+        this.battle = new Battle(this.canvas, this.ctx)
+        this.battleView = false
         this.lastMap
     }
 
@@ -102,8 +105,15 @@ class GameEngine {
     }
 
     gameLoop() {
-        this.update();
-        this.render();
+        if (!this.battleView) {
+            this.update();
+            this.render();
+
+        }
+        else {
+            this.battleView = !this.battle.isBattleOver()
+        }
+
         requestAnimationFrame(this.gameLoop);
     }
 
@@ -173,7 +183,7 @@ class GameEngine {
                 this.isOnGrass = true;
                 this.grassTilePos = { x: tileX, y: tileY };
 
-                if (Math.random() < 0.001) {
+                if (Math.random() < 0.01) {
                     this.startBattle();
                 }
             } else {
@@ -240,7 +250,11 @@ class GameEngine {
 
     startBattle() {
         console.log("Batalha iniciada!");
+        this.ctx.save()
+        this.battleView = true
         // Aqui você pode chamar sua lógica de batalha, troca de cena, etc
+        this.battle.loadPokemonData()
+        
     }
 
 }
