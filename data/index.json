@@ -1,0 +1,7 @@
+{
+  "pokemon": "pokemon-data.json",
+  "maps": [
+    "map-data.json",
+    "map2-data.json"
+  ]
+}

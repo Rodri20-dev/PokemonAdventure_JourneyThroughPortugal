@@ -3,21 +3,22 @@ import Entity from "./Entity.js";
 
 var NPC = Entity.extend(function () {
 
-    this.constructor = function (imgUrl, x, y) {
+    this.constructor = function (x, y) {
         this.super();
 
         this.sprite = {
             img: "",
-            imgURL: imgUrl,
+            imgURL: "assets/images/characters/npc.png",
             sourceX: 0,
             sourceY: 0,
-            sourceWidth: 32,
-            sourceHeight: 48
+            sourceWidth: 16,
+            sourceHeight: 24
         };
         this.x = x;
         this.y = y;
         this.width = 16;
         this.height = 24;
+        this.pokemons = []
     };
 
     this.update = function () {

@@ -17,7 +17,7 @@ class SceneManager {
         this.triggerAreas.push({ x: x * 16, y: y * 16, width: width * 16, height: height * 16, targetMap });
     }
 
-    clearTransitionAreas() { // ADICIONA ESTE MÉTODO
+    clearTransitionAreas() { 
         this.triggerAreas = [];
     }
 

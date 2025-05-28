@@ -1,12 +1,12 @@
 /* pokemon.css */
 @font-face {
   font-family: 'Press Start 2P';
-  src: url('../assets/fonts/PressStart2P-Regular.ttf');
+  src: url('../assets/fonts/PressStart2P-Regular.ttf') format('truetype');
 }
 
 @font-face {
   font-family: 'PokemonFont';
-  src: url('../assets/fonts/pokemon_fire_red.ttf') format('ttf');
+  src: url('../assets/fonts/pokemon_fire_red.ttf') format('truetype');
 }
 
 body {

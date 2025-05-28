@@ -1,22 +1,15 @@
 import Pokemon from "../entities/Pokemon.js";
 
 class Battle {
-  constructor(canvas, ctx) {
+  constructor(canvas, pokemonData) {
     this.canvas = canvas;
-    this.ctx = ctx;
+    this.ctx = canvas.getContext("2d");
 
     this.bgImage = new Image();
     this.barImage = new Image();
-    this.playerTurn = true;
-    this.battleOver = false;
-    this.playerPokemon = null;
-    this.wildPokemon = null;
-    this.message = "";
 
     this.menuOptions = ["Atacar", "Capturar", "Fugir"];
-    this.selectedOption = 0;
-    this.showMenu = false;
-    this.pokemonData = null;
+    this.pokemonData = pokemonData;
     this.qteActive = false;
     this.qteBarX = 0;
     this.qteInterval = null;
@@ -35,18 +28,9 @@ class Battle {
     window.addEventListener("keydown", (e) => this.handleMenuNavigation(e));
   }
 
-  async loadPokemonData() {
-    try {
-      const response = await fetch("./data/pokemon-data.json");
-      if (!response.ok) throw new Error("Falha ao carregar os dados dos Pokémons.");
-      this.pokemonData = await response.json();
-      this.initGame();
-    } catch (error) {
-      console.error("Erro ao carregar os dados dos Pokémons:", error);
-    }
-  }
-
-  initGame() {
+  initBattle() {
+    this.resetBattle()
+    this.assetsLoaded = 0
     const meuInicial = this.pokemonData[1];
     console.log(meuInicial)
     const random2 = this.pokemonData[Math.floor(Math.random() * this.pokemonData.length)];
@@ -72,7 +56,7 @@ class Battle {
 
   checkAssetsLoaded() {
     this.assetsLoaded++;
-    if (this.assetsLoaded === 4) {
+    if (this.assetsLoaded >= 4) {
       // Começa o fade in
       this.fadeAlpha = 0;
       this.fadeInActive = true;
@@ -82,7 +66,7 @@ class Battle {
         this.message = "";
         this.showMenu = true;
         this.drawBattle();
-      }, 5000);
+      }, 3000);
     }
   }
 
@@ -121,6 +105,7 @@ class Battle {
     this.drawHealthBar(this.playerPokemon, playerX, playerY + 10);
     this.drawHealthBar(this.wildPokemon, wildX, wildY + 10);
 
+    
     this.ctx.fillStyle = "white";
     this.ctx.font = "12px PokemonFont";
     this.ctx.textAlign = "center";
@@ -129,7 +114,7 @@ class Battle {
       this.ctx.fillText(this.message, this.canvas.width / 2, this.canvas.height - 20);
     }
 
-    if (!this.battleOver && this.showMenu) this.drawMenu();
+    if (this.inBattle && this.showMenu) this.drawMenu();
     if (this.qteActive) this.drawQTE();
 
 
@@ -169,14 +154,14 @@ class Battle {
     this.qteBarX = 0;
     this.qteInterval = setInterval(() => {
       this.qteBarX += this.qte.speed;
-      if (this.qteBarX > this.qte.barWidth) this.qteBarX = 0;
+      if (this.qteBarX >= this.qte.barWidth) this.qteBarX = 0;
       this.drawBattle();
     }, 30);
   }
 
   drawQTE() {
     const barX = (this.canvas.width - this.qte.barWidth) / 2;
-    const barY = this.canvas.height * 0.75;
+    const barY = this.canvas.height * 0.8;
 
     this.ctx.fillStyle = "#ddd";
     this.ctx.fillRect(barX, barY, this.qte.barWidth, 20);
@@ -216,7 +201,7 @@ class Battle {
       this.wildPokemon.hp = 0;
       this.message += `\nVocê derrotou o ${this.wildPokemon.name}!`;
 
-      this.battleOver = true;
+      this.inBattle = false;
     } else {
       this.playerTurn = false;
       setTimeout(() => this.enemyAttack(), 1000);
@@ -226,45 +211,45 @@ class Battle {
   }
 
   attack() {
-    if (this.battleOver || !this.playerTurn) return;
+    if (!this.inBattle || !this.playerTurn) return;
     this.message = "Aperte [Z] no momento certo!";
     this.drawBattle();
     this.startQTE();
   }
 
   enemyAttack() {
-    if (!this.wildPokemon.isAlive() || this.battleOver) return;
+    if (!this.wildPokemon.isAlive() || !this.inBattle) return;
 
     this.playerPokemon.hp -= this.wildPokemon.attack;
     if (this.playerPokemon.hp <= 0) {
       this.playerPokemon.hp = 0;
       this.message = `${this.playerPokemon.name} desmaiou!`;
       this.drawBattle()
-      this.battleOver = true;
+      this.inBattle = false;
     } else {
       this.message = `${this.wildPokemon.name} atacou!`;
       this.drawBattle()
     }
 
-    this.playerTurn = true;
-    this.showMenu = true;
     setTimeout(() => {
       this.message = "";
       this.showMenu = true;
+      this.playerTurn = true;
       this.drawBattle();
-    }, 2000);
+    }, 1000);
   }
 
   tryCapture() {
-    if (this.battleOver || !this.playerTurn) return;
-
+    if (!this.inBattle || !this.playerTurn) return;
+    this.showMenu = false
     const chance = Math.random();
     if (this.wildPokemon.hp < this.wildPokemon.maxHp / 2 && chance < 0.5) {
       this.message = `Você capturou o ${this.wildPokemon.name}!`;
-      this.battleOver = true;
+      this.inBattle = false;
       setTimeout(() => this.endBattle(), 1000);
     } else {
       this.message = "A captura falhou!";
+
       this.playerTurn = false;
       setTimeout(() => this.enemyAttack(), 1000);
     }
@@ -273,7 +258,7 @@ class Battle {
   }
 
   flee() {
-    if (this.battleOver || !this.playerTurn) return;
+    if (!this.inBattle || !this.playerTurn) return;
 
     const chance = Math.random();
     if (chance < 0.5) {
@@ -331,12 +316,22 @@ class Battle {
   }
 
   endBattle() {
-    this.battleOver = true;
+    this.inBattle = false;
     console.log("Batalha encerrada.");
   }
 
-  isBattleOver() {
-    return this.battleOver;
+  isInBattle() {
+    return this.inBattle;
+  }
+
+  resetBattle() {
+    this.playerTurn = true;
+    this.inBattle = true;
+    this.playerPokemon = null;
+    this.wildPokemon = null;
+    this.message = "";
+    this.showMenu = false;
+    this.selectedOption = 0
   }
 }
 
