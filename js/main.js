@@ -40,7 +40,7 @@ function startGame() {
     window.removeEventListener("keydown", titleKeyHandler);
 
     if (!gameEngine) {
-        gameEngine = new GameEngine(canvas, gameData); 
+        gameEngine = new GameEngine(canvas, gameData, gameSounds); 
     }
 
     gameEngine.start();

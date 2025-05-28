@@ -1,14 +1,14 @@
 import Pokemon from "../entities/Pokemon.js";
 
 class Battle {
-  constructor(canvas, pokemonData, player) {
+  constructor(canvas, pokemonData, player, gameSounds) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
 
     this.bgImage = new Image();
     this.barImage = new Image();
     this.player = player;
-
+    this.gameSounds = gameSounds
     this.menuOptions = ["Atacar", "Capturar", "Fugir"];
     this.pokemonData = pokemonData;
     this.qteActive = false;
@@ -34,6 +34,10 @@ class Battle {
     if (this.isTrainer) {
       this.qte.zoneStart = 90;
       this.qte.zoneWidth = 10;
+    }
+    else {
+      this.qte.zoneStart = 80;
+      this.qte.zoneWidth = 40;
     }
     this.resetBattle()
     this.assetsLoaded = 0
@@ -212,8 +216,8 @@ class Battle {
     if (this.wildPokemon.hp <= 0) {
       this.wildPokemon.hp = 0;
       this.message += `\nVocê derrotou o ${this.wildPokemon.name}!`;
-
-      this.inBattle = false;
+      this.drawBattle()
+      setTimeout(() => this.endBattle(), 1000);
     } else {
       this.playerTurn = false;
       setTimeout(() => this.enemyAttack(), 1000);
@@ -346,6 +350,7 @@ class Battle {
   endBattle() {
     this.inBattle = false;
     console.log("Batalha encerrada.");
+    this.gameSounds.playSound("map_theme.mp3")
   }
 
   isInBattle() {
