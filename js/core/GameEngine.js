@@ -286,8 +286,7 @@ class GameEngine {
         // Desenha a primeira área de transição AJUSTADA PARA A CÂMARA
 
         this.ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-
-        this.ctx.fillRect((0 * 16) - camX, (17 * 16) - camY, 16, 32);
+        this.ctx.fillRect((5 * 22) - camX, (17 * 5) - camY, 51, 35);
 
 
 
@@ -295,7 +294,7 @@ class GameEngine {
 
         this.ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
 
-        this.ctx.fillRect((47 * 16) - camX, (6 * 16) - camY, 16, 64);
+        this.ctx.fillRect((24 * 16) - camX, (22 * 21) - camY, 62, 35);
 
         this.sceneManager.renderTransition();
 
