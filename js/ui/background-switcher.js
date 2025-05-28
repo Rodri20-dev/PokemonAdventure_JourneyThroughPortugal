@@ -1,9 +1,9 @@
 //background-switcher.js
 const background = [
-    "../assets/images/background/pokemon-bg.jpg",
-    "../assets/images/background/pokemon-bg-2.jpg",
-    "../assets/images/background/pokemon-bg-3.jpg",
-    "../assets/images/background/pokemon-bg-4.jpg"
+    "assets/images/background/pokemon-bg.jpg",
+    "assets/images/background/pokemon-bg-2.jpg",
+    "assets/images/background/pokemon-bg-3.jpg",
+    "assets/images/background/pokemon-bg-4.jpg"
 ];
 
 let currentBg = 0;

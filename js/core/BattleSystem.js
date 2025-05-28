@@ -31,7 +31,7 @@ class Battle {
   initBattle() {
     this.resetBattle()
     this.assetsLoaded = 0
-    const meuInicial = this.pokemonData[1];
+    const meuInicial = this.pokemonData[1 ];
     console.log(meuInicial)
     const random2 = this.pokemonData[Math.floor(Math.random() * this.pokemonData.length)];
 
