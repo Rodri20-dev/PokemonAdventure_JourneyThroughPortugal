@@ -228,7 +228,7 @@ class Battle {
 
   attack() {
     if (!this.inBattle || !this.playerTurn) return;
-    this.message = "Aperte [Z] no momento certo!";
+    this.message = "Aperte [Enter] no momento certo!";
     this.drawBattle();
     this.startQTE();
   }
@@ -309,7 +309,7 @@ class Battle {
   }
 
   handleMenuNavigation(e) {
-    if (this.qteActive && e.key.toLowerCase() === "z") {
+    if (this.qteActive && e.code === "Enter") {
       this.resolveQTE();
       return;
     }
@@ -326,7 +326,6 @@ class Battle {
         this.drawBattle();
         break;
       case "Enter":
-      case "KeyZ":
         this.selectMenuOption();
         break;
     }
