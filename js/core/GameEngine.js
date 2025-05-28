@@ -113,8 +113,8 @@ class GameEngine {
 
             if (this.playerTransitionLocation === 'map') {
                 console.log("1");
-                this.player.x = 3 * 16;
-                this.player.y = 17 * 16;
+                this.player.x = 2 * 16;
+                this.player.y = 18 * 16;
             }
 
             this.playerTransitionLocation = 'map2';
@@ -128,8 +128,8 @@ class GameEngine {
                 console.log("2");
 
                 console.log(this.playerTransitionLocation);
-                this.player.x = 45 * 16;
-                this.player.y = 100;
+                this.player.x = 46 * 16;
+                this.player.y = 130;
             }
 
             this.playerTransitionLocation = 'map';
