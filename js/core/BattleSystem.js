@@ -1,12 +1,13 @@
 import Pokemon from "../entities/Pokemon.js";
 
 class Battle {
-  constructor(canvas, pokemonData) {
+  constructor(canvas, pokemonData, player) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
 
     this.bgImage = new Image();
     this.barImage = new Image();
+    this.player = player;
 
     this.menuOptions = ["Atacar", "Capturar", "Fugir"];
     this.pokemonData = pokemonData;
@@ -28,10 +29,15 @@ class Battle {
     window.addEventListener("keydown", (e) => this.handleMenuNavigation(e));
   }
 
-  initBattle() {
+  initBattle(isTrainer = false) {
+    this.isTrainer = isTrainer
+    if (this.isTrainer) {
+      this.qte.zoneStart = 90;
+      this.qte.zoneWidth = 10;
+    }
     this.resetBattle()
     this.assetsLoaded = 0
-    const meuInicial = this.pokemonData[1];
+    const meuInicial = this.player.pokemons[0];
     console.log(meuInicial)
     const random2 = this.pokemonData[Math.floor(Math.random() * this.pokemonData.length)];
 
@@ -41,7 +47,13 @@ class Battle {
     this.playerPokemon.sprite.img = new Image();
     this.wildPokemon.sprite.img = new Image();
 
-    this.message = `Um ${this.wildPokemon.name} selvagem apareceu!`;
+    if (!isTrainer) {
+      this.message = `Um ${this.wildPokemon.name} selvagem apareceu!`;
+
+    }
+    else {
+      this.message = `A batalha contra o NPC começou!!`;
+    }
 
     this.playerPokemon.sprite.img.onload = () => this.checkAssetsLoaded();
     this.wildPokemon.sprite.img.onload = () => this.checkAssetsLoaded();
@@ -88,8 +100,6 @@ class Battle {
     this.ctx.globalAlpha = this.fadeAlpha;
 
     this.ctx.drawImage(this.bgImage, 2 * 240, 0, 240, 112, 0, 0, this.canvas.width, this.canvas.height * 0.7);
-    this.ctx.drawImage(this.barImage, 0, 0, 240, 48, 0, this.canvas.height * 0.7,
-      this.canvas.width, this.canvas.height * 0.3);
 
     const sw = this.playerPokemon.sprite.sourceWidth;
     const sh = this.playerPokemon.sprite.sourceHeight;
@@ -101,11 +111,13 @@ class Battle {
 
     this.ctx.drawImage(this.playerPokemon.sprite.img, playerX, playerY, sw, sh);
     this.ctx.drawImage(this.wildPokemon.sprite.img, wildX, wildY, sw, sh);
+    this.ctx.drawImage(this.barImage, 0, 0, 240, 48, 0, this.canvas.height * 0.7,
+      this.canvas.width, this.canvas.height * 0.3);
 
     this.drawHealthBar(this.playerPokemon, playerX, playerY + 10);
     this.drawHealthBar(this.wildPokemon, wildX, wildY + 10);
 
-    
+
     this.ctx.fillStyle = "white";
     this.ctx.font = "12px PokemonFont";
     this.ctx.textAlign = "center";
@@ -243,12 +255,20 @@ class Battle {
     if (!this.inBattle || !this.playerTurn) return;
     this.showMenu = false
     const chance = Math.random();
-    if (this.wildPokemon.hp < this.wildPokemon.maxHp / 2 && chance < 0.5) {
-      this.message = `Você capturou o ${this.wildPokemon.name}!`;
-      this.inBattle = false;
-      setTimeout(() => this.endBattle(), 1000);
-    } else {
-      this.message = "A captura falhou!";
+    if (!this.isTrainer) {
+      if (this.wildPokemon.hp < this.wildPokemon.maxHp / 2 && chance < 0.5) {
+        this.message = `Você capturou o ${this.wildPokemon.name}!`;
+        this.inBattle = false;
+        setTimeout(() => this.endBattle(), 1000);
+      } else {
+        this.message = "A captura falhou!";
+
+        this.playerTurn = false;
+        setTimeout(() => this.enemyAttack(), 1000);
+      }
+    }
+    else {
+      this.message = "Nao pode capturar o pokemon do NPC!";
 
       this.playerTurn = false;
       setTimeout(() => this.enemyAttack(), 1000);
@@ -261,13 +281,22 @@ class Battle {
     if (!this.inBattle || !this.playerTurn) return;
 
     const chance = Math.random();
-    if (chance < 0.5) {
-      this.message = "Você fugiu da batalha!";
-      this.showMenu = false
-      this.drawBattle();
-      setTimeout(() => this.endBattle(), 1000);
-    } else {
-      this.message = "Não conseguiu fugir!";
+    if (!this.isTrainer) {
+      if (chance < 0.5) {
+        this.message = "Você fugiu da batalha!";
+        this.showMenu = false
+        this.drawBattle();
+        setTimeout(() => this.endBattle(), 1000);
+      } else {
+        this.message = "Não conseguiu fugir!";
+        this.showMenu = false
+        this.playerTurn = false;
+        this.drawBattle();
+        setTimeout(() => this.enemyAttack(), 1000);
+      }
+    }
+    else {
+      this.message = "Você não pode fugir do NPC!";
       this.showMenu = false
       this.playerTurn = false;
       this.drawBattle();
@@ -283,7 +312,7 @@ class Battle {
 
     if (!this.showMenu) return;
 
-    switch (e.key) {
+    switch (e.code) {
       case "ArrowRight":
         this.selectedOption = (this.selectedOption + 1) % this.menuOptions.length;
         this.drawBattle();
@@ -293,8 +322,7 @@ class Battle {
         this.drawBattle();
         break;
       case "Enter":
-      case "z":
-      case "Z":
+      case "KeyZ":
         this.selectMenuOption();
         break;
     }

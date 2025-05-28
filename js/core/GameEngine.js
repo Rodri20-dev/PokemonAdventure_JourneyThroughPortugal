@@ -21,7 +21,7 @@ class GameEngine {
         this.movementHandler = new MovementHandler(this.player);
         this.assetsLoaded = 0;
         this.sceneManager = new SceneManager(this);
-        this.battle = new Battle(this.canvas, this.gameData.pokemon)
+        this.battle = new Battle(this.canvas, this.gameData.pokemon, this.player)
         this.dialogueManager = new DialogueManager(this.canvas, this.ctx)
 
 
@@ -60,7 +60,7 @@ class GameEngine {
                     console.log("teste")
                     this.dialogueManager.startDialogue(
                         ["NPC: Olá, treinador!", "Preparado para batalhar?!"],
-                        () => { this.startBattle(); window.addEventListener("keydown", this.interactionHandler); }, // onAccept
+                        () => { this.startBattle(true); window.addEventListener("keydown", this.interactionHandler); }, // onAccept
                         () => { console.log("Jogador recusou"); window.addEventListener("keydown", this.interactionHandler); } // onDecline
                     )
                     window.removeEventListener("keydown", this.interactionHandler);
@@ -306,9 +306,9 @@ class GameEngine {
         }
     }
 
-    startBattle() {
+    startBattle(isTrainer) {
         console.log("Batalha iniciada!");
-        this.battle.initBattle();
+        this.battle.initBattle(isTrainer);
     }
 
 }
