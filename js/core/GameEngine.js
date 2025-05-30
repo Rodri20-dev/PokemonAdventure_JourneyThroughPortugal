@@ -22,13 +22,13 @@ class GameEngine {
         this.assetsLoaded = 0;
         this.sceneManager = new SceneManager(this);
         this.gameSounds = gameSounds
-        this.battle = new Battle(this.canvas, this.gameData.pokemon, this.player, this.gameSounds)
         this.dialogueManager = new DialogueManager(this.canvas, this.ctx)
         this.dialogue = false
         this.gameLoop = this.gameLoop.bind(this);
         this.checkAssetsLoaded = this.checkAssetsLoaded.bind(this);
         this.keydownHandler = this.movementHandler.handleKeyDown.bind(this.movementHandler);
         this.keyupHandler = this.movementHandler.handleKeyUp.bind(this.movementHandler);
+        this.interactionHandler = this.handleInteraction.bind(this);
 
     }
 
@@ -46,14 +46,13 @@ class GameEngine {
 
         window.addEventListener("keydown", this.keydownHandler);
         window.addEventListener("keyup", this.keyupHandler);
-        this.interactionHandler = this.handleInteraction.bind(this);
         window.addEventListener("keydown", this.interactionHandler);
 
     }
 
     handleInteraction(e) {
-        if (!this.battle.isInBattle()) {
-            if (e.code === "Space" && this.npc) { // tecla espaço
+        if (this.battle && !this.battle.isInBattle() || !this.battle) {
+            if (e.code === "Space" && this.npc) {
                 const dx = Math.abs(this.player.x - this.npc.x);
                 const dy = Math.abs(this.player.y - this.npc.y);
                 if (dx < 48 && dy < 48) {
@@ -303,10 +302,12 @@ class GameEngine {
         }
     }
 
-    startBattle(isTrainer) {
+    startBattle(isNpcBattle) {
         console.log("Batalha iniciada!");
-        this.battle.initBattle(isTrainer);
+        this.battle = new Battle(this.canvas, this.gameData.pokemon, this.player, this.gameSounds, isNpcBattle ? this.npc : null);
+        this.battle.initBattle(isNpcBattle);
         this.gameSounds.playSound("battle_theme.mp3")
+
     }
 
 }

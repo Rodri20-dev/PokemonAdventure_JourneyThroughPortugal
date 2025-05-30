@@ -3,12 +3,13 @@ import Entity from "./Entity.js";
 
 var Pokemon = Entity.extend(function () {
 
-    this.constructor = function (pName, hp, attack, imgUrl) {
+    this.constructor = function (pName, hp, attack, imgFront, imgBack) {
         this.super();
 
         this.sprite = {
             img: "",
-            imgURL: imgUrl,
+            imgFront: imgFront,
+            imgBack: imgBack,
             sourceX: 0,
             sourceY: 0,
             sourceWidth: 96,

@@ -1,3 +1,5 @@
+import Pokemon from "../entities/Pokemon.js";
+
 class StarterSelection {
   constructor(canvas, starters, player) {
     this.canvas = canvas;
@@ -37,8 +39,10 @@ class StarterSelection {
 
   chooseStarter() {
     window.removeEventListener('keydown', this.handleKeyDown);
-    console.log(this.player.pokemons)
-    this.player.pokemons.push(this.starters[this.selectedIndex]);
+    let pokemon = this.starters[this.selectedIndex]
+    console.log(pokemon)
+
+    this.player.pokemons.push(new Pokemon(pokemon.name, pokemon.hp, pokemon.attack, pokemon.imgFront, pokemon.imgBack));
     console.log(this.player.pokemons)
     this.isSelecting = false
   }
@@ -48,7 +52,7 @@ class StarterSelection {
 
     if (this.backgroundImage && this.backgroundImage.complete) {
       ctx.drawImage(this.backgroundImage, 0, 0, this.canvas.width, this.canvas.height);
-      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";  
+      ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
       ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -97,4 +101,3 @@ class StarterSelection {
 }
 
 export default StarterSelection;
- 
