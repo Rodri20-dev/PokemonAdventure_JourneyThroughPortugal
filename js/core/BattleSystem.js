@@ -66,11 +66,6 @@ class Battle {
       this.fadeInActive = true;
       this.fadeIn();
 
-      setTimeout(() => {
-        this.message = "";
-        this.showMenu = true;
-        this.render();
-      }, 2000);
     }
   }
 
@@ -82,7 +77,11 @@ class Battle {
     } else {
       this.fadeAlpha = 1;
       this.fadeInActive = false;
-      this.render();
+      setTimeout(() => {
+        this.message = "";
+        this.showMenu = true;
+        this.render();
+      }, 1000);
     }
   }
 
@@ -90,8 +89,6 @@ class Battle {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.ctx.globalAlpha = this.fadeAlpha;
-
-    this.ctx.drawImage(this.bgImage, 2 * 240, 0, 240, 112, 0, 0, this.canvas.width, this.canvas.height * 0.7);
 
     const sw = this.playerPokemon.sprite.sourceWidth;
     const sh = this.playerPokemon.sprite.sourceHeight;
@@ -101,6 +98,7 @@ class Battle {
     const wildX = this.canvas.width * 0.72 - sw / 2;
     const wildY = this.canvas.height * 0.30 - sh / 2;
 
+    this.ctx.drawImage(this.bgImage, 2 * 240, 0, 240, 112, 0, 0, this.canvas.width, this.canvas.height * 0.7);
     this.ctx.drawImage(this.playerPokemon.sprite.img, playerX, playerY, sw, sh);
     this.ctx.drawImage(this.wildPokemon.sprite.img, wildX, wildY, sw, sh);
     this.ctx.drawImage(this.barImage, 0, 0, 240, 48, 0, this.canvas.height * 0.7,
@@ -216,49 +214,66 @@ class Battle {
   attack() {
     if (!this.inBattle || !this.playerTurn) return;
     this.message = "Aperte [Enter] no momento certo!";
-    this.render();
     this.startQTE();
+    this.render();
+    
   }
 
-  enemyAttack() {
-    if (!this.wildPokemon.isAlive() || !this.inBattle) return;
+enemyAttack() {
+  if (!this.wildPokemon.isAlive() || !this.inBattle) return;
 
-    this.playerPokemon.hp -= this.wildPokemon.attack;
-    if (!this.playerPokemon.isAlive()) {
-      this.playerPokemon.hp = 0;
-      this.message = `${this.playerPokemon.name} desmaiou!`;
-      let index = this.player.pokemons.indexOf(this.playerPokemon)
-      if (this.player.pokemons.length - 1 > index) {
-        this.playerPokemon = this.player.pokemons[index + 1];
-        this.playerPokemon.sprite.img.src = this.playerPokemon.sprite.imgBack
-      }
-      else {
-        setTimeout(() => this.endBattle(), 1000);
-      }
+  this.playerPokemon.hp -= this.wildPokemon.attack;
+
+  if (!this.playerPokemon.isAlive()) {
+    this.playerPokemon.hp = 0;
+    this.message = `${this.playerPokemon.name} desmaiou!`;
+
+    let index = this.player.pokemons.indexOf(this.playerPokemon);
+    if (index < this.player.pokemons.length - 1) {
+      // Trocar para o próximo Pokémon
+      this.playerPokemon = this.player.pokemons[index + 1];
+
+      // Garantir que o novo Pokémon esteja com HP cheio e sprite carregado
+      this.playerPokemon.hp = this.playerPokemon.maxHp;
+      this.playerPokemon.sprite.img = new Image();
+      this.playerPokemon.sprite.img.onload = () => {
+        this.message = `${this.playerPokemon.name}, eu escolho você!`;
+        this.render();
+      };
+      this.playerPokemon.sprite.img.src = this.playerPokemon.sprite.imgBack;
 
     } else {
-      this.message = `${this.wildPokemon.name} atacou!`;
-      this.render()
+      this.message = "Você não tem mais Pokémon!";
+      this.render();
+      setTimeout(() => this.endBattle(), 1000);
+      return;
     }
 
-    setTimeout(() => {
-      this.message = "";
-      this.showMenu = true;
-      this.playerTurn = true;
-      this.render();
-    }, 1000);
+  } else {
+    this.message = `${this.wildPokemon.name} atacou!`;
+    this.render();
   }
+
+  // Preparar próximo turno
+  setTimeout(() => {
+    this.message = "";
+    this.showMenu = true;
+    this.playerTurn = true;
+    this.render();
+  }, 1000);
+}
+
 
   tryCapture() {
     if (!this.inBattle || !this.playerTurn) return;
+
     this.showMenu = false
     const chance = Math.random();
     if (!this.isNpcBattle) {
       if (this.wildPokemon.hp < this.wildPokemon.maxHp / 2 && chance < 0.7) {
         this.message = `Você capturou o ${this.wildPokemon.name}!`;
-        console.log(this.player.pokemons)
-        setTimeout(() => this.endBattle(), 1000);
         this.player.pokemons.push(this.wildPokemon)
+        setTimeout(() => this.endBattle(), 1000);
       } else {
         this.message = "A captura falhou!";
         this.playerTurn = false;
@@ -267,11 +282,9 @@ class Battle {
     }
     else {
       this.message = "Nao pode capturar o pokemon do NPC!";
-
-      this.playerTurn = false;
       setTimeout(() => this.enemyAttack(), 1000);
     }
-
+    this.endTurn()
     this.render();
   }
 
