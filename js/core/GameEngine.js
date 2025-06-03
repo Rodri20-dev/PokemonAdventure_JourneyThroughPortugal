@@ -280,11 +280,6 @@ class GameEngine {
             this.battle.render();
         }
 
-        // No GameEngine.js, quando criar a tela de título:
-        this.introScreen = new Intro(this.canvas);
-        if (this.gamepadIndex !== null) {
-            this.introScreen.gamepadIndex = this.gamepadIndex;
-        }
 
 
         requestAnimationFrame(this.gameLoop); // Agenda próximo frame
@@ -340,7 +335,7 @@ class GameEngine {
         if (xButton.pressed && !this.prevButtonsState[0]) {
             // Simula o pressionamento da tecla Enter
             this.handleInteraction({ code: "Space" });
-            console.log("X")
+            //console.log("X")
         }
 
         // Atualiza estado anterior para evitar repetição

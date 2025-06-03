@@ -85,7 +85,7 @@ class DialogueManager {
         const xButton = gp.buttons[0];
         if (xButton.pressed && !this.prevXButtonPressed) {
             this.handleInput({ code: "Space" });
-            console.log("X2");
+            //console.log("X2");
         }
         this.prevXButtonPressed = xButton.pressed;
     
