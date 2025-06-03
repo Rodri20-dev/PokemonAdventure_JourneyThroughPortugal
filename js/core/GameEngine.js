@@ -188,8 +188,8 @@ class GameEngine {
         if (mapName === 'map') {
             // Posicionamento ao voltar do map2
             if (this.playerTransitionLocation === 'map') {
-                this.player.x = 3 * 16; // 3 tiles (48px)
-                this.player.y = 17 * 16; // 17 tiles (272px)
+                this.player.x = 2 * 16; // 2 tiles (32px)
+                this.player.y = 18 * 16; // 18 tiles (256px)
             }
 
             this.playerTransitionLocation = 'map2'; // Próximo destino
@@ -206,8 +206,8 @@ class GameEngine {
         } else if (mapName === 'map2') {
             // Posicionamento ao voltar do map1
             if (this.playerTransitionLocation === 'map2') {
-                this.player.x = 45 * 16; // 45 tiles (720px)
-                this.player.y = 100; // Posição Y em pixels
+                this.player.x = 46 * 16; // 45 tiles (736px)
+                this.player.y = 130; // Posição Y em pixels
             }
 
             this.playerTransitionLocation = 'map'; // Próximo destino
