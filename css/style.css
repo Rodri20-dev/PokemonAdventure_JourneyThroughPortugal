@@ -1,60 +1,82 @@
-/* pokemon.css */
+/* 
+ * Arquivo de estilos principal do jogo Pokémon
+ * Define fontes, layout e elementos visuais
+ */
+
+/* 
+ * Definição de fontes personalizadas
+ */
+
+/* Fonte 'Press Start 2P' - estilo de jogos retrô */
 @font-face {
   font-family: 'Press Start 2P';
   src: url('../assets/fonts/PressStart2P-Regular.ttf') format('truetype');
 }
 
+/* Fonte 'PokemonFont' - estilo da fonte usada nos jogos Pokémon originais */
 @font-face {
   font-family: 'PokemonFont';
   src: url('../assets/fonts/pokemon_fire_red.ttf') format('truetype');
 }
 
+/* 
+ * Estilos gerais do corpo da página
+ */
 body {
-  margin: 0;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  margin: 0;                /* Remove margens padrão */
+  overflow: hidden;          /* Esconde barras de rolagem */
+  display: flex;             /* Usa flexbox para centralização */
+  justify-content: center;   /* Centraliza horizontalmente */
+  align-items: center;       /* Centraliza verticalmente */
+  height: 100vh;            /* Altura total da viewport */
+  
+  /* Imagem de fundo temática Pokémon */
   background-image: url("../assets/images/background/pokemon-bg.jpg");
-  background-size: contain;
-  background-repeat: repeat-x;
+  background-size: contain;  /* Mantém proporção da imagem */
+  background-repeat: repeat-x; /* Repete apenas no eixo X */
 }
 
-/* Estilos para o canvas do jogo */
+/* 
+ * Estilos para o elemento canvas (onde o jogo é renderizado)
+ */
 canvas {
-  display: block;
-  width: 70%;
-  height: auto;
-  image-rendering: pixelated;
+  display: block;           /* Remove espaçamento abaixo do canvas */
+  width: 70%;              /* Largura relativa à tela */
+  height: auto;            /* Altura ajustada automaticamente */
+  image-rendering: pixelated; /* Mantém pixels nítidos (estilo retrô) */
 }
 
+/* 
+ * Estilos para o botão de tema (pode ser usado para mudar skins/cores)
+ */
 #theme-button {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 10;
-  padding: 6px 12px;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 10px;
-  background-color: #ff0000;
-  color: #fff;
-  border: 2px solid #000;
-  border-radius: 4px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  image-rendering: pixelated;
+  position: absolute;       /* Posicionamento absoluto */
+  top: 10px;               /* 10px do topo */
+  left: 10px;              /* 10px da esquerda */
+  z-index: 10;             /* Garante que fique acima de outros elementos */
+  padding: 6px 12px;       /* Espaçamento interno */
+  font-family: 'Press Start 2P', cursive; /* Fonte estilo retrô */
+  font-size: 10px;         /* Tamanho pequeno */
+  background-color: #ff0000; /* Vermelho Pokémon */
+  color: #fff;             /* Texto branco */
+  border: 2px solid #000;  /* Borda preta */
+  border-radius: 4px;      /* Cantos levemente arredondados */
+  text-transform: uppercase; /* Texto em maiúsculas */
+  cursor: pointer;         /* Cursor de ponteiro */
+  transition: all 0.3s ease; /* Transição suave para hover/active */
+  image-rendering: pixelated; /* Mantém estilo pixelado */
 }
 
+/* Efeito hover (quando o mouse passa por cima) */
 #theme-button:hover {
-  background-color: #fff;
-  color: #ff0000;
-  border-color: #ff0000;
+  background-color: #fff;   /* Fundo branco */
+  color: #ff0000;          /* Texto vermelho */
+  border-color: #ff0000;   /* Borda vermelha */
 }
 
+/* Efeito active (quando o botão é clicado) */
 #theme-button:active {
-  background-color: #000;
-  color: #fff;
-  border-color: #fff;
+  background-color: #000;   /* Fundo preto */
+  color: #fff;             /* Texto branco */
+  border-color: #fff;      /* Borda branca */
 }

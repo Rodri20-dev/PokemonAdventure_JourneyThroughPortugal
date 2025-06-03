@@ -1,33 +1,42 @@
-//Pokemon.js
 import Entity from "./Entity.js";
 
+/**
+ * Classe que representa um Pokémon.
+ * Estende a classe Entity com propriedades específicas de Pokémon.
+ */
 var Pokemon = Entity.extend(function () {
-
     this.constructor = function (pName, hp, attack, imgFront, imgBack) {
-        this.super();
+        this.super(); // Chama construtor da classe pai
 
+        // Configurações do sprite
         this.sprite = {
-            img: "",
-            imgFront: imgFront,
-            imgBack: imgBack,
-            sourceX: 0,
-            sourceY: 0,
-            sourceWidth: 96,
-            sourceHeight: 96
+            img: "",       // Referência à imagem carregada
+            imgFront: imgFront, // Imagem para batalha (frente)
+            imgBack: imgBack,   // Imagem para batalha (costas)
+            sourceX: 0,      // Posição X no spritesheet
+            sourceY: 0,      // Posição Y no spritesheet
+            sourceWidth: 96,  // Largura do sprite
+            sourceHeight: 96  // Altura do sprite
         };
-        this.name = pName;
-        this.maxHp = hp;
-        this.hp = hp;
-        this.attack = attack;
+        
+        // Propriedades do Pokémon
+        this.name = pName;   // Nome do Pokémon
+        this.maxHp = hp;     // HP máximo
+        this.hp = hp;        // HP atual
+        this.attack = attack; // Poder de ataque
     };
 
+    /**
+     * Verifica se o Pokémon está vivo
+     * @returns {boolean} True se HP > 0, False caso contrário
+     */
     this.isAlive = function () {
         return this.hp > 0;
     };
 
-    this.update= function(){
- 
-   };
+    // Método de atualização vazio (pode ser extendido)
+    this.update = function () {
+    };
 });
 
-export default Pokemon
+export default Pokemon;

@@ -1,30 +1,34 @@
-//Player.js
 import Entity from "./Entity.js";
 
+/**
+ * Classe que representa o mundo do jogo.
+ * Estende a classe Entity para gerenciar o mapa e seus dados.
+ */
 var World = Entity.extend(function () {
-
     this.constructor = function () {
-        this.super();
+        this.super(); // Chama construtor da classe pai
 
+        // Configurações do sprite (vazias, serão preenchidas ao carregar mapa)
         this.sprite = {
-            img: "",
-            imgURL: "",
-            sourceX: 0,
-            sourceY: 0,
-            sourceWidth: 0,
-            sourceHeight: 0
+            img: "",       // Referência à imagem carregada
+            imgURL: "",    // Caminho da imagem (vazio inicialmente)
+            sourceX: 0,    // Posição X no spritesheet
+            sourceY: 0,    // Posição Y no spritesheet
+            sourceWidth: 0, // Largura do sprite
+            sourceHeight: 0 // Altura do sprite
         };
-        this.data = null
+        
+        // Dados do mapa (serão carregados posteriormente)
+        this.data = null;
+        
+        // Posição inicial (0,0)
         this.x = 0;
         this.y = 0;
-        // this.width = 16;
-        // this.height = 24;
     };
 
-    this.update= function(){
- 
-   };
-
+    // Método de atualização vazio
+    this.update = function () {
+    };
 });
 
-export default World
+export default World;
