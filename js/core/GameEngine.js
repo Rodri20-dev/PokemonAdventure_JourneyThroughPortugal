@@ -111,7 +111,7 @@ class GameEngine {
                     if (this.player.pokemons.length >= 3) {
                         // Diálogo para batalha com NPC
                         this.dialogueManager.startDialogue(
-                            ["Blue: Olá, treinador!", "Blue: Preparado para batalhar?!"],
+                            ["Blue: Olá, treinador!", "    Blue: Preparado para batalhar?!"],
                             () => { // Callback para opção "Sim"
                                 this.startBattle(true); // Inicia batalha contra NPC
                                 window.addEventListener("keydown", this.interactionHandler);
@@ -125,7 +125,7 @@ class GameEngine {
                     } else {
                         // Diálogo se não tiver pokémons suficientes
                         this.dialogueManager.startDialogue(
-                            ["Blue: Você está despreparado!", "Capture pelo menos 3 Pokémons"],
+                            ["Blue: Você está despreparado!", "      Capture pelo menos 3 Pokémons"],
                             () => { window.addEventListener("keydown", this.interactionHandler); },
                             () => { window.addEventListener("keydown", this.interactionHandler); },
                             false // Sem opções
