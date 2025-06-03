@@ -16,6 +16,14 @@ class DialogueManager {
         this.onAccept = null; // Callback para opção "Sim"
         this.onDecline = null; // Callback para opção "Não"
 
+
+
+        //parte do controlo
+        this.prevXButtonPressed = false;
+        this.gamepadIndex = 0; // Ou null se quiser detectar dinamicamente
+
+
+
         // Configura listener de input
         window.addEventListener("keydown", this.handleInput.bind(this));
     }
@@ -64,6 +72,39 @@ class DialogueManager {
             }
         }
     }
+
+
+
+    //converter inout do controlo
+    handleGamepadInput() {
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads[this.gamepadIndex];
+        if (!gp) return;
+    
+        // Botão X (índice 0) = "Space"
+        const xButton = gp.buttons[0];
+        if (xButton.pressed && !this.prevXButtonPressed) {
+            this.handleInput({ code: "Space" });
+            console.log("X2");
+        }
+        this.prevXButtonPressed = xButton.pressed;
+    
+        // Botões de direção
+        const leftButton = gp.buttons[14]; // D-Pad Left
+        const rightButton = gp.buttons[15]; // D-Pad Right
+    
+        // Previne múltiplos eventos no mesmo pressionamento
+        if (rightButton.pressed && !this.prevRightPressed) {
+            this.handleInput({ code: "ArrowRight" });
+        }
+        if (leftButton.pressed && !this.prevLeftPressed) {
+            this.handleInput({ code: "ArrowLeft" });
+        }
+    
+        this.prevRightPressed = rightButton.pressed;
+        this.prevLeftPressed = leftButton.pressed;
+    }
+    
 
     /**
      * Renderiza o diálogo na tela.

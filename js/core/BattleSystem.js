@@ -20,6 +20,18 @@ class Battle {
     this.pokemonData = pokemonData;
     this.npc = npc;
 
+
+
+    //parte do controlo
+    this.gamepadIndex = 0;
+    this.prevXButtonPressed = false;
+    this.prevLeftPressed = false;
+    this.prevRightPressed = false;
+
+
+
+
+
     // Adiciona listener para navegação no menu
     window.addEventListener("keydown", (e) => this.handleMenuNavigation(e));
   }
@@ -385,6 +397,44 @@ class Battle {
         break;
     }
   }
+
+
+
+
+  //converter inout do controlo
+  handleGamepadInput() {
+    const gamepads = navigator.getGamepads();
+    const gp = gamepads[this.gamepadIndex];
+    if (!gp) return;
+
+    // Botão X (índice 0) = "Enter"
+    const xButton = gp.buttons[0];
+    if (xButton.pressed && !this.prevXButtonPressed) {
+        this.handleMenuNavigation({ code: "Enter" });
+    }
+    this.prevXButtonPressed = xButton.pressed;
+
+    // Botões de direção
+    const leftButton = gp.buttons[14]; // D-Pad Left
+    const rightButton = gp.buttons[15]; // D-Pad Right
+
+    // Previne múltiplos eventos no mesmo pressionamento
+    if (rightButton.pressed && !this.prevRightPressed) {
+        this.handleMenuNavigation({ code: "ArrowRight" });
+    }
+    if (leftButton.pressed && !this.prevLeftPressed) {
+        this.handleMenuNavigation({ code: "ArrowLeft" });
+    }
+
+    this.prevRightPressed = rightButton.pressed;
+    this.prevLeftPressed = leftButton.pressed;
+}
+
+
+
+
+
+
 
   selectMenuOption() {
     // Executa a ação correspondente à opção selecionada

@@ -35,6 +35,17 @@ class StarterSelection {
             }
         });
 
+
+
+
+        // Variáveis do controlo
+        this.gamepadIndex = 0;
+        this.prevLeftPressed = false;
+        this.prevRightPressed = false;
+        this.prevAButtonPressed = false;
+
+
+
         // Configura listener de teclado
         this.handleKeyDown = this.handleKeyDown.bind(this);
         window.addEventListener('keydown', this.handleKeyDown);
@@ -56,6 +67,56 @@ class StarterSelection {
             this.chooseStarter();
         }
     }
+
+
+
+    //converter os inputs do controlo
+    handleGamepadInput() {
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads[this.gamepadIndex];
+        if (!gp) return;
+
+        // Botões direcionais (D-Pad)
+        const leftButton = gp.buttons[14]; // D-Pad Left
+        const rightButton = gp.buttons[15]; // D-Pad Right
+        const aButton = gp.buttons[0]; // Botão A (índice 0)
+
+        // Movimento para esquerda
+        if (leftButton.pressed && !this.prevLeftPressed) {
+            this.moveLeft();
+        }
+        this.prevLeftPressed = leftButton.pressed;
+
+        // Movimento para direita
+        if (rightButton.pressed && !this.prevRightPressed) {
+            this.moveRight();
+        }
+        this.prevRightPressed = rightButton.pressed;
+
+        // Confirmação com botão A
+        if (aButton.pressed && !this.prevAButtonPressed) {
+            this.chooseStarter();
+        }
+        this.prevAButtonPressed = aButton.pressed;
+    }
+
+    /**
+     * Move seleção para a esquerda.
+     */
+    moveLeft() {
+        this.selectedIndex = (this.selectedIndex - 1 + this.starters.length) % this.starters.length;
+    }
+
+    /**
+     * Move seleção para a direita.
+     */
+    moveRight() {
+        this.selectedIndex = (this.selectedIndex + 1) % this.starters.length;
+    }
+
+
+
+
 
     /**
      * Finaliza a seleção e adiciona o Pokémon escolhido ao jogador.

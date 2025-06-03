@@ -63,6 +63,22 @@ class GameEngine {
         this.keydownHandler = this.movementHandler.handleKeyDown.bind(this.movementHandler);
         this.keyupHandler = this.movementHandler.handleKeyUp.bind(this.movementHandler);
         this.interactionHandler = this.handleInteraction.bind(this);
+
+
+
+
+
+        //parte para o comando
+        this.gamepadIndex = null; // índice do controlo conectado
+        this.activeGamepadKey = null; // direção ativa
+        this.prevButtonsState = {}; // estado anterior para evitar repetição
+
+        window.addEventListener("gamepadconnected", (e) => {
+            console.log("Controlo conectado:", e.gamepad);
+            this.gamepadIndex = e.gamepad.index;
+        });
+
+
     }
 
     /**
@@ -105,7 +121,7 @@ class GameEngine {
                 // Calcula distância do jogador para o NPC
                 const dx = Math.abs(this.player.x - this.npc.x);
                 const dy = Math.abs(this.player.y - this.npc.y);
-                
+
                 // Verifica proximidade (48px = 3 tiles)
                 if (dx < 48 && dy < 48) {
                     if (this.player.pokemons.length >= 3) {
@@ -244,20 +260,97 @@ class GameEngine {
     gameLoop() {
         // Renderiza seleção inicial se ativa
         if (this.starterSelection && this.starterSelection.isSelectingStarter()) {
+            this.starterSelection.handleGamepadInput();
             this.starterSelection.render();
-        } 
+        }
         // Renderiza diálogo se ativo
         else if (this.dialogueManager.isDialogueActive()) {
+            this.dialogueManager.handleGamepadInput();
             this.dialogueManager.draw();
-        } 
+        }
         // Jogo normal (fora de batalha)
         else if (!this.battle || !this.battle.isInBattle()) {
+            this.handleGamepadInput(); // Verifica inputs do controlo
             this.update(); // Atualiza lógica
             this.render(); // Renderiza cena
         }
+        // Em batalha
+        else if (this.battle && this.battle.isInBattle()) {
+            this.battle.handleGamepadInput(); // Adicione esta linha
+            this.battle.render();
+        }
+
+        // No GameEngine.js, quando criar a tela de título:
+        this.introScreen = new Intro(this.canvas);
+        if (this.gamepadIndex !== null) {
+            this.introScreen.gamepadIndex = this.gamepadIndex;
+        }
+
 
         requestAnimationFrame(this.gameLoop); // Agenda próximo frame
+
     }
+
+
+
+
+    //converter as teclas do controlo
+    handleGamepadInput() {
+        if (this.gamepadIndex === null) return;
+
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads[this.gamepadIndex];
+
+        if (!gp) return;
+
+        const directions = {
+            12: "ArrowUp",    // D-Pad cima
+            13: "ArrowDown",  // D-Pad baixo
+            14: "ArrowLeft",  // D-Pad esquerda
+            15: "ArrowRight"  // D-Pad direita
+        };
+
+        let directionPressed = null;
+
+        // Checa botões direcionais
+        for (let index in directions) {
+            const btn = gp.buttons[index];
+            if (btn.pressed) {
+                directionPressed = directions[index];
+                break; // Só uma direção por vez
+            }
+        }
+
+        // Gerencia mudança de direção (igual ao que já tem)
+        if (directionPressed !== this.activeGamepadKey) {
+            // "Solta" a anterior
+            if (this.activeGamepadKey) {
+                this.movementHandler.handleKeyUp({ code: this.activeGamepadKey });
+            }
+
+            if (directionPressed) {
+                this.movementHandler.handleKeyDown({ code: directionPressed });
+            }
+
+            this.activeGamepadKey = directionPressed;
+        }
+
+        // Botão X (index 2) como Enter
+        const xButton = gp.buttons[0];
+        if (xButton.pressed && !this.prevButtonsState[0]) {
+            // Simula o pressionamento da tecla Enter
+            this.handleInteraction({ code: "Space" });
+            console.log("X")
+        }
+
+        // Atualiza estado anterior para evitar repetição
+        this.prevButtonsState[0] = xButton.pressed;
+    }
+
+
+
+
+
 
     /**
      * ATUALIZA A LÓGICA DO JOGO
@@ -282,6 +375,9 @@ class GameEngine {
             newX += this.player.speed; // Move para direita
             this.player.state = this.player.states.RIGHT;
         }
+
+
+
 
         // Atualiza animação se estiver se movendo
         if (activeKey) this.player.update();
@@ -314,15 +410,15 @@ class GameEngine {
 
             for (let tileset of tilesets) {
                 const firstGid = tileset.firstgid; // Primeiro ID do tileset
-                const tileCount = tileset.tilecount || 
-                    (tileset.imagewidth / tileset.tilewidth) * 
+                const tileCount = tileset.tilecount ||
+                    (tileset.imagewidth / tileset.tilewidth) *
                     (tileset.imageheight / tileset.tileheight);
 
                 // Verifica se o tile está neste tileset
                 if (tileId >= firstGid && tileId < firstGid + tileCount) {
                     const localId = tileId - firstGid;
                     const tile = tileset.tiles?.find(t => t.id === localId);
-                    
+
                     // Verifica propriedade "isGrass"
                     if (tile && tile.properties) {
                         const grassProp = tile.properties.find(p => p.name === "isGrass" && p.value === true);
@@ -399,10 +495,10 @@ class GameEngine {
         // Renderiza NPC (se existir)
         if (this.npc) {
             this.ctx.drawImage(
-                this.npc.sprite.img, 
+                this.npc.sprite.img,
                 this.npc.x - camX, // Posição X ajustada pela câmera
                 this.npc.y - camY, // Posição Y ajustada pela câmera
-                this.npc.width, 
+                this.npc.width,
                 this.npc.height
             );
 
@@ -411,8 +507,8 @@ class GameEngine {
                 this.ctx.fillStyle = "white";
                 this.ctx.font = "12px Arial";
                 this.ctx.fillText(
-                    "Pressione espaço para conversar com o NPC", 
-                    this.npc.x - camX, 
+                    "Pressione espaço para conversar com o NPC",
+                    this.npc.x - camX,
                     this.player.y + camY
                 );
             }
@@ -433,7 +529,7 @@ class GameEngine {
             this.gameSounds, // Sistema de áudio
             isNpcBattle ? this.npc : null // NPC (se for batalha contra NPC)
         );
-        
+
         this.battle.initBattle(isNpcBattle); // Inicializa batalha
         this.gameSounds.playSound("battle_theme.mp3"); // Toca música de batalha
     }

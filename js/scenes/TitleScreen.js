@@ -22,6 +22,16 @@ class Intro {
         this.frameInterval = 20; // Intervalo entre frames
         this.animationFinished = false; // Flag para animação concluída
 
+
+
+
+        //parte do controlo
+        this.gamepadIndex = 0;
+        this.prevAButtonPressed = false;
+
+
+
+
         // Configura carregamento da imagem
         this.img.onload = () => {
             this.loaded = true;
@@ -54,6 +64,9 @@ class Intro {
             this.blinkTimer = 0;
             this.showPressEnter = !this.showPressEnter;
         }
+        
+        // Verifica inputs do controlo
+        this.handleGamepadInput();
     }
 
     /**
@@ -99,6 +112,25 @@ class Intro {
             this.isActive = false; // Sai da tela de título
         }
     }
+
+
+    
+    //converter inputs do controlo
+    handleGamepadInput() {
+        const gamepads = navigator.getGamepads();
+        const gp = gamepads[this.gamepadIndex];
+        if (!gp) return;
+
+        // Botão A (índice 0)
+        const aButton = gp.buttons[0];
+        if (aButton.pressed && !this.prevAButtonPressed) {
+            this.isActive = false; // Sai da tela de título
+        }
+        this.prevAButtonPressed = aButton.pressed;
+    }
+
+
+
 }
 
 export default Intro;
