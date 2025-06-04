@@ -66,7 +66,7 @@ class Intro {
         }
         
         // Verifica inputs do controlo
-        this.handleGamepadInput();
+        //this.handleGamepadInput();
     }
 
     /**
@@ -116,7 +116,7 @@ class Intro {
 
     
     //converter inputs do controlo
-    handleGamepadInput() {
+    /* handleGamepadInput() {
         const gamepads = navigator.getGamepads();
         const gp = gamepads[this.gamepadIndex];
         if (!gp) return;
@@ -124,10 +124,10 @@ class Intro {
         // Botão A (índice 0)
         const aButton = gp.buttons[0];
         if (aButton.pressed && !this.prevAButtonPressed) {
-            this.isActive = false; // Sai da tela de título
+            this.handleKeyDown({ code: "Enter" });this.isActive = false; // Sai da tela de título
         }
         this.prevAButtonPressed = aButton.pressed;
-    }
+    } */
 
 
 
