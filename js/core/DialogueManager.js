@@ -20,7 +20,7 @@ class DialogueManager {
 
         //parte do controlo
         this.prevXButtonPressed = false;
-        this.gamepadIndex = 0; // Ou null se quiser detectar dinamicamente
+        this.gamepadIndex = 0;
 
 
 
